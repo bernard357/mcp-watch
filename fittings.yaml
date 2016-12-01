@@ -1,0 +1,133 @@
+---
+
+information:
+  - "Monitor consumption at the MCP with InfluxDB and Grafana"
+
+---
+
+regionId: dd-eu
+locationId: EU6
+
+blueprints:
+
+  - single-node:
+
+      domain:
+        name: McpWatchFox
+        ipv4: auto
+
+      ethernet:
+        name: McpWatchNetwork
+        subnet: 10.9.45.0
+
+      nodes:
+        - watch-01:
+
+            information:
+              - "ssh ubuntu@{{ node.public }}"
+
+            appliance: 'Ubuntu 14'
+
+            cpu: 1
+            memory: 1
+
+            glue:
+              - internet icmp 22 80 443 8080
+
+            monitoring: essentials
+
+            cloud-config:
+
+              packages:
+                - ntp
+                - git
+                - python-pip
+
+              write_files:
+
+                - path: /etc/init/watch.conf
+                  permissions: "0755"
+                  content: |
+                      description "MCP watch service"
+
+                      start on runlevel [234]
+                      stop on runlevel [0156]
+
+                      setuid ubuntu
+
+                      env MCP_USERNAME="{{ environment.MCP_USERNAME }}"
+                      export MCP_USERNAME
+
+                      env MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
+                      export MCP_PASSWORD
+
+                      script
+                          cd /home/ubuntu/mcp-pump
+                          python pump.py
+                      end script
+
+                - path: /etc/profile.d/watch.sh
+                  permissions: "0755"
+                  content: |
+                    #!/bin/sh
+                    export MCP_USERNAME="{{ environment.MCP_USERNA%E }}"
+                    export MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
+
+                - path: /root/hosts.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ node.public }}/ {next}
+                    /^{{ node.private }}/ {next}
+                    {print}
+                    END {
+                     print "{{ node.public }}    {{ node.name }}"
+                     print "{{ node.private }}    {{ node.name }}"
+                    }
+
+                - path: /root/settings.sed
+                  content: |
+                    #!/usr/bin/sed
+                    /#key:/s/^.*$/    key: {{ secret.key }} /
+
+              runcmd:
+
+                - echo "===== Handling ubuntu identity"
+                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+                - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+                - echo "===== Updating /etc/hosts"
+                - cp -n /etc/hosts /etc/hosts.original
+                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+                - echo "===== Installing the code"
+                - cd /home/ubuntu/
+                - git clone https://github.com/bernard357/mcp-pump.git
+                - cd mcp-pump/
+                - pip install -r requirements.txt
+                - sed -i -f /root/settings.sed settings.yaml
+
+                - echo "===== Starting MCP pump as a daemon service"
+                - chown ubuntu:ubuntu -R /home/ubuntu
+                - start watch
+
+              hostname: "{{ node.name }}"
+
+              ssh_keys:
+                rsa_private: |
+                  {{ rsa_private.key }}
+                rsa_public: "{{ rsa_public.key }}"
+
+              users:
+                - default
+
+                - name: ubuntu
+                  sudo: 'ALL=(ALL) NOPASSWD:ALL'
+                  ssh-authorized-keys:
+                    - "{{ rsa_public.key }}"
+                    - "{{ rsa_public.local }}"
+
+              disable_root: false
+              ssh_pwauth: false
+
