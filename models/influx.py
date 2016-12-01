@@ -26,7 +26,7 @@ class InfluxdbUpdater(Updater):
 
     def use_database(self):
         """
-        Opens a database for points
+        Opens a database to save data
         """
 
         self.db = InfluxDBClient('localhost', 8086, 'root', 'root', 'mcp_detailed_usage')
