@@ -13,17 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import hashlib
+from datetime import date, datetime, timedelta
 import logging
 import os
-import random
 import requests
 from six import string_types
 import string
 import sys
 import time
-import uuid
-import yaml
 
 from libcloud.compute.providers import get_driver as get_compute_driver
 from libcloud.compute.types import Provider as ComputeProvider
@@ -46,7 +43,7 @@ class Pump(object):
         Ignites the plumbing engine
 
         :param settings: the parameters for this pump instance
-        :type settings: ``str`` or ``file`` or ``dict`` or ``list`` of ``dict``
+        :type settings: ``dict``
 
         :param parameters: the external parameters
         :type plan: ``str`` or ``file`` or ``dict``
@@ -54,25 +51,40 @@ class Pump(object):
         """
 
         self.settings = settings
+        if 'mcp' not in settings:
+            settings [ 'mcp' ] = {}
 
         self._userName = None
         self._userPassword = None
-        self._engine = None
 
+        self.engines = {}
 
-    def set_user_name(self, name):
+        self.updaters = []
+
+    def lookup(self, key, default=None):
         """
-        Changes the name used to authenticate to the API
+        Finds a value from settings
 
-        :param name: the user name to be used with the driver
-        :type name: ``str``
+        :param key: the parameter to lookup
+        :type key: ``str``
 
-        This function can be used to supplement the normal provision of
-        a user name via the environment variable ``MCP_USERNAME``.
+        :param default: the default value
+        :type default: ``str`` or ``list`` or ``dict``
 
         """
 
-        self._userName = name
+        settings = self.settings
+        tokens = key.split('.')
+        label = tokens.pop(-1)
+        for token in tokens:
+
+            if token in settings:
+                settings = settings[ token ]
+            else:
+                raise KeyError(
+                    "Error: missing configuration '{}'".format(token))
+
+        return settings.get(label, default)
 
     def get_user_name(self):
         """
@@ -93,7 +105,16 @@ class Pump(object):
             export MCP_USERNAME='foo.bar'
             export MCP_PASSWORD='WhatsUpDoc'
 
+        In addition, you can put the value in the configuration file,
+        like this::
+
+            mcp:
+              MCP_USERNAME: 'foo.bar'
+
         """
+
+        if self._userName is None:
+            self._userName = self.lookup('mcp.MCP_USERNAME')
 
         if self._userName is None:
             self._userName = os.getenv('MCP_USERNAME')
@@ -102,20 +123,6 @@ class Pump(object):
                     "Error: missing credentials in environment MCP_USERNAME")
 
         return self._userName
-
-    def set_user_password(self, password):
-        """
-        Changes the password used to authenticate to the API
-
-        :param password: the user password to be used with the driver
-        :type password: ``str``
-
-        This function can be used to supplement the normal provision of
-        a user password via the environment variable ``MCP_PASSWORD``.
-
-        """
-
-        self._userPassword = password
 
     def get_user_password(self):
         """
@@ -136,7 +143,16 @@ class Pump(object):
             export MCP_USERNAME='foo.bar'
             export MCP_PASSWORD='WhatsUpDoc'
 
+        In addition, you can put the value in the configuration file,
+        like this::
+
+            mcp:
+              MCP_PASSWORD: 'WhatsUpDoc'
+
         """
+
+        if self._userPassword is None:
+            self._userPassword = self.lookup('mcp.MCP_PASSWORD')
 
         if self._userPassword is None:
             self._userPassword = os.getenv('MCP_PASSWORD')
@@ -146,7 +162,24 @@ class Pump(object):
 
         return self._userPassword
 
-    def set_driver(self, region='dd-eu', host=None):
+    def get_regions(self):
+        """
+        Retrieves regions to be analysed
+
+        :return: the list of regions
+        :rtype: ``list`` of ``str``
+
+        Regions should normally be listed in main configuration::
+
+            mcp:
+              regions: ['dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na']
+
+        """
+
+        return self.lookup('mcp.regions',
+                           ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
+
+    def set_driver(self):
         """
         Sets a compute driver from Apache Libcloud
 
@@ -154,50 +187,197 @@ class Pump(object):
 
         driver = get_compute_driver(ComputeProvider.DIMENSIONDATA)
 
-        self._engine = driver(
-            key=self.get_user_name(),
-            secret=self.get_user_password(),
-            region=region,
-            host=host)
+        self.engines = {}
 
-        return self._engine
+        for region in self.get_regions():
 
-    def pump(self):
+            self.engines[ region ] = driver(
+                key=self.get_user_name(),
+                secret=self.get_user_password(),
+                region=region,
+                host=None)
+
+        return self.engines
+
+    def pump(self, begin=None, end=None, continuously=False):
         """
         Pumps data continuously
+
+        :param begin: the beginning date, e.g., date(2016, 09, 01)
+        :type begin: ``date`` or `None`
+
+        :param end: the ending day, e.g., date(2016, 11, 30)
+        :type end: ``date`` or `None`
+
+        :param continuously: loop until Ctrl-C
+        :type continuusly: `True` or `False`
+
         """
 
-        while True:
+        if end is None:
+            end = date.today()
 
-            self.pull()
+        if begin:
 
-            time.sleep(30)
+            cursor = begin
+            while cursor < end:
+                logging.info("Pulling data for {}".format(cursor))
+                self.pull_all(on=cursor)
+                cursor += timedelta(days=1)
 
+        while continuously:
 
-    def pull(self):
-        """
-        Pulls some data
-        """
-
-        start_date = '2016-11-20'
-        end_date = '2016-11-30'
-
-        try:
-            data = self._engine.ex_detailed_usage_report(
-                start_date,
-                end_date)
-
-            print(data)
-
-        except Exception as feedback:
-
-            if 'RESOURCE_BUSY' in str(feedback):
-                pass
+            if cursor < end:
+                logging.info("Pulling data for {}".format(cursor))
+                self.pull_all(on=cursor)
+                cursor += timedelta(days=1)
 
             else:
-                raise
+                time.sleep(60)
+                end = date.today()
 
+    def pull_all(self, on):
+        """
+        Pulls data for one day, across all regions
 
-pump = Pump()
-pump.set_driver()
-pump.pull()
+        :param on: the target day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        """
+        logging.info("Considering {}".format(', '.join(self.engines.keys())))
+
+        for region in self.engines.keys():
+            self.pull(on=on, region=region)
+
+    def pull(self, on, region='dd-eu'):
+        """
+        Pulls data for a given region on a given date
+
+        :param on: the target day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        items = self.fetch_summary_usage(on, region)
+        self.update_summary_usage(items, region)
+
+        items = self.fetch_detailed_usage(on, region)
+        self.update_detailed_usage(items, region)
+
+    def fetch_summary_usage(self, on, region='dd-eu'):
+        """
+        Fetches and returns summary usage
+
+        :param on: the target day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        logging.info("Fetching summary usage for {}".format(region))
+
+        start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
+        end_date = on.strftime("%Y-%m-%d")
+
+        items = self.engines[region].ex_summary_usage_report(
+            start_date,
+            end_date)
+
+        items.pop(0)
+
+        logging.info("- found {} items for {} on {}".format(
+            len(items), region, end_date))
+
+        return items
+
+    def fetch_detailed_usage(self, on, region='dd-eu'):
+        """
+        Fetches and returns detailed usage
+
+        :param on: the target day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        logging.info("Fetching detailed usage for {}".format(region))
+
+        start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
+        end_date = on.strftime("%Y-%m-%d")
+
+        items = self.engines[region].ex_detailed_usage_report(
+            start_date,
+            end_date)
+
+        items.pop(0)
+
+        logging.info("- found {} items for {} on {}".format(
+            len(items), region, end_date))
+
+        return items
+
+    def add_updater(self, updater):
+        """
+        Adds a new database updater
+
+        :param updater: check directory `updaters`
+        :type updater: ``object``
+
+        """
+
+        self.updaters.append(updater)
+
+    def update_summary_usage(self, items, region='dd-eu'):
+        """
+        Saves records of summary usage
+
+        :param items: to be recorded in database
+        :type items: ``list`` of ``dict``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+        for updater in self.updaters:
+            updater.update_summary_usage(items, region)
+
+    def update_detailed_usage(self, items, region='dd-eu'):
+        """
+        Saves records of detailed usage
+
+        :param items: to be recorded in database
+        :type items: ``list`` of ``dict``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+        for updater in self.updaters:
+            updater.update_detailed_usage(items, region)
+
+# the program launched from the command line
+#
+if __name__ == "__main__":
+
+    logging.basicConfig(level=logging.INFO)
+
+    pump = Pump()
+    pump.set_driver()
+
+    from models.influx import InfluxdbUpdater
+    influx = InfluxdbUpdater()
+    influx.reset_database()
+
+    pump.add_updater(influx)
+
+    today = date.today()
+    cursor = (today - timedelta(days=90)).replace(day=1)
+
+    pump.pump(begin=cursor, end=today)

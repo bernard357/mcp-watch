@@ -29,7 +29,13 @@ class InfluxdbUpdater(Updater):
         Opens a database to save data
         """
 
-        self.db = InfluxDBClient('localhost', 8086, 'root', 'root', 'mcp_detailed_usage')
+        self.db = InfluxDBClient(
+            self.settings.get('host', 'localhost'),
+            self.settings.get('port', 8086),
+            self.settings.get('user', 'root'),
+            self.settings.get('password', 'root'),
+            self.settings.get('database', 'mcp'),
+            )
         return self.db
 
     def reset_database(self):
@@ -37,9 +43,15 @@ class InfluxdbUpdater(Updater):
         Opens a database for points
         """
 
-        self.db = InfluxDBClient('localhost', 8086, 'root', 'root', 'mcp_detailed_usage')
-        self.db.drop_database('mcp_detailed_usage')
-        self.db.create_database('mcp_detailed_usage')
+        self.db = InfluxDBClient(
+            self.settings.get('host', 'localhost'),
+            self.settings.get('port', 8086),
+            self.settings.get('user', 'root'),
+            self.settings.get('password', 'root'),
+            self.settings.get('database', 'mcp'),
+            )
+        self.db.drop_database(self.settings.get('database', 'mcp'))
+        self.db.create_database(self.settings.get('database', 'mcp'))
         return self.db
 
     def update_summary_usage(self, items, region='dd-eu'):

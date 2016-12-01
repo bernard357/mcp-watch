@@ -22,7 +22,44 @@ from models.influx import InfluxdbUpdater
 
 class PumpTests(unittest.TestCase):
 
-    @vcr.use_cassette('fixtures/mcp.yaml')
+    def test_settings(self):
+
+        print('***** Test settings ***')
+
+        pump = Pump()
+        self.assertEqual(pump.lookup('mcp'), pump.settings[ 'mcp' ])
+        self.assertEqual(pump.lookup('unknown'), None)
+        self.assertEqual(pump.lookup('unknown', 'expected'), 'expected')
+        with self.assertRaises(KeyError):
+            pump.lookup('still.unknown')
+        with self.assertRaises(KeyError):
+            pump.lookup('still.very.unknown')
+
+        self.assertEqual(pump.get_regions(),
+                         ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
+
+        settings = {
+            'mcp': {
+                'MCP_USERNAME': 'foo.bar',
+                'MCP_PASSWORD': 'WhatsUpDoc',
+                'regions': ['dd-eu', 'dd-na'],
+                }
+            }
+        pump = Pump(settings)
+        self.assertEqual(pump.lookup('mcp'), pump.settings[ 'mcp' ])
+        self.assertEqual(pump.lookup('mcp.MCP_USERNAME'), 'foo.bar')
+        self.assertEqual(pump.lookup('mcp.MCP_PASSWORD'), 'WhatsUpDoc')
+        self.assertEqual(pump.get_regions(),
+                         ['dd-eu', 'dd-na'])
+        self.assertEqual(pump.lookup('mcp.unknown'), None)
+        with self.assertRaises(KeyError):
+            pump.lookup('still.unknown')
+        with self.assertRaises(KeyError):
+            pump.lookup('mcp.very.unknown')
+
+
+    @vcr.use_cassette(
+        os.path.abspath(os.path.dirname(__file__))+'/fixtures/mcp.yaml')
     def test_mcp(self):
 
         pump = Pump()
@@ -35,13 +72,14 @@ class PumpTests(unittest.TestCase):
         items = pump.fetch_summary_usage(on=someday)
 
         name = 'fixtures/summary-usage-dd-eu.yaml'
-        if os.path.isfile(name):
-            with open(name, 'r') as handle:
+        lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
+        if os.path.isfile(lname):
+            with open(lname, 'r') as handle:
                 expected = yaml.load(handle)
                 self.assertEqual(items, expected)
 
         else:
-            with open(name, 'w') as handle:
+            with open(lname, 'w') as handle:
                 yaml.dump(items, handle)
 
         print('***** Test fetch detailed usage ***')
@@ -49,20 +87,21 @@ class PumpTests(unittest.TestCase):
         items = pump.fetch_detailed_usage(on=someday)
 
         name = 'fixtures/detailed-usage-dd-eu.yaml'
-        if os.path.isfile(name):
-            with open(name, 'r') as handle:
+        lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
+        if os.path.isfile(lname):
+            with open(lname, 'r') as handle:
                 expected = yaml.load(handle)
                 self.assertEqual(items[100:200], expected)
 
         else:
-            with open(name, 'w') as handle:
+            with open(lname, 'w') as handle:
                 yaml.dump(items[100:200], handle)
 
         print('***** Test pull ***')
 
         pump.pull(on=someday)
 
-    def test_upate(self):
+    def test_update(self):
 
         pump = Pump()
         pump.set_driver()
@@ -77,8 +116,9 @@ class PumpTests(unittest.TestCase):
                                return_value=None) as mocked:
 
             name = 'fixtures/summary-usage-dd-eu.yaml'
-            if os.path.isfile(name):
-                with open(name, 'r') as handle:
+            lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
+            if os.path.isfile(lname):
+                with open(lname, 'r') as handle:
                     items = yaml.load(handle)
                     pump.update_summary_usage(items)
 
@@ -91,8 +131,9 @@ class PumpTests(unittest.TestCase):
                                return_value=None) as mocked:
 
             name = 'fixtures/detailed-usage-dd-eu.yaml'
-            if os.path.isfile(name):
-                with open(name, 'r') as handle:
+            lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
+            if os.path.isfile(lname):
+                with open(lname, 'r') as handle:
                     items = yaml.load(handle)
                     pump.update_detailed_usage(items)
 

@@ -1,0 +1,41 @@
+# MCP settings
+#
+mcp:
+
+    # regions to be analysed
+    #
+    regions: ['dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na']
+
+    # should better be set in computer environment
+    #
+    # MCP_USERNAME: 'foo.bar'
+
+    # should better be set in computer environment
+    #
+    # MCP_PASSWORD: 'WhatsUpDoc'
+
+
+# InfluxDB settings
+#
+influx:
+
+    # server host name - default is 'localhost'
+    #
+    #host: 10.11.22.33
+
+    # server port - default is 8086
+    #
+    #port: 8086
+
+    # user name - default is 'root'
+    #
+    #user: root
+
+    # user password - default is 'root'
+    #
+    #password: root
+
+    # database - default is 'mcp'
+    #
+    #database: mcp
+
