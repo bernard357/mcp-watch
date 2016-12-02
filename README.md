@@ -1,5 +1,5 @@
-# mcp-pump
-Pump logs from the global Managed Cloud Platforma and monitor resource consumption
+# MCP Watch
+Pump logs from the global Managed Cloud Platform and monitor resource consumption
 over time.
 
 ![Summary Usage](docs/summary-usage.png)
@@ -22,7 +22,7 @@ The following is the very minimum viable product we could design. Thanks for you
 
 ### Install InfluxDB as data store
 
-Check [the official installation page for InfluxDB](https://docs.influxdata.com/influxdb/v1.1/introduction/installation/). On ubuntu do the following:
+Check [the official installation page for InfluxDB](https://docs.influxdata.com/influxdb/v1.1/introduction/installation/). This can run on RedHat, CentOS, Ubuntu and on MAC OS X. On Ubuntu do the following:
 
 ```
 $ curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
@@ -56,7 +56,7 @@ $ python pump.py
 
 ### Install Grafana and visualize data
 
-Download the code and run it, as per instructions from [the official installation page of Grafana](http://docs.grafana.org/installation/).
+Download the code and run it, as per instructions from [the official installation page of Grafana](http://docs.grafana.org/installation/). Almost any operating system, including Windows, can be used for a Grafana back-end server.
 On Ubuntu do the following:
 
 ```
@@ -70,7 +70,7 @@ Start the Grafana console from your preferred web browser, then add a data sourc
 InfluxDB and using the database `mcp`. After that, build the dashboard that you were dreaming of
 with fantastic rendering capabilities of Grafana.
 
-Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location.
+Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location to get more details.
 
 ![CPU Hours](docs/cpu-hours.png)
 
