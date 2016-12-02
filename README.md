@@ -70,3 +70,7 @@ Start the Grafana console from your preferred web browser, then add a data sourc
 InfluxDB and using the database `mcp`. After that, build the dashboard that you were dreaming of
 with fantastic rendering capabilities of Grafana.
 
+Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location.
+
+![CPU Hours](docs/cpu-hours.png)
+
