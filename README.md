@@ -7,7 +7,7 @@ over time.
 ## What is this?
 
 Since the API from Dimension Data exposes interesting consumption information,
-we show in this project how to build a beautiful dashboard with Grafana and InfluxDB.
+we show in this project how to build a beautiful dashboard with [Grafana](http://grafana.org/) and with [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/).
 
 ## How to do the same?
 
@@ -21,6 +21,8 @@ The following is the very minimum viable product we could design. Thanks for you
 ## Setup steps
 
 ### Install InfluxDB as data store
+
+[InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/) is an open source database written in Go specifically to handle time series data with high availability and high performance requirements. InfluxDB installs in minutes without external dependencies, yet is flexible and scalable enough for complex deployments.
 
 Check [the official installation page for InfluxDB](https://docs.influxdata.com/influxdb/v1.1/introduction/installation/). This can run on RedHat, CentOS, Ubuntu and on MAC OS X. On Ubuntu do the following:
 
@@ -55,6 +57,8 @@ $ python pump.py
 ![pumping](docs/pumping.png)
 
 ### Install Grafana and visualize data
+
+[Grafana](http://grafana.org/) is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
 
 Download the code and run it, as per instructions from [the official installation page of Grafana](http://docs.grafana.org/installation/). Almost any operating system, including Windows, can be used for a Grafana back-end server.
 On Ubuntu do the following:
