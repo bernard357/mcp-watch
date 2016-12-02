@@ -52,7 +52,7 @@ $ pip install -r requirements.txt
 $ python pump.py
 ```
 
-![pumping](pumping.png)
+![pumping](docs/pumping.png)
 
 ### Install Grafana and visualize data
 
