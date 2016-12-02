@@ -70,6 +70,9 @@ class InfluxdbUpdater(Updater):
 
         for item in items:
 
+            if len(item[1]) < 1:
+                continue
+
             measurement = {
                     "measurement": 'Summary usage',
                     "tags": {
