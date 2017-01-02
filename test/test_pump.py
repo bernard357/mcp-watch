@@ -41,7 +41,6 @@ class PumpTests(unittest.TestCase):
         print('***** Test settings ***')
 
         pump = Pump()
-        self.assertEqual(pump.lookup('mcp'), pump.settings[ 'mcp' ])
         self.assertEqual(pump.lookup('unknown'), None)
         self.assertEqual(pump.lookup('unknown', 'expected'), 'expected')
         with self.assertRaises(KeyError):
@@ -53,19 +52,16 @@ class PumpTests(unittest.TestCase):
                          ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
 
         settings = {
-            'mcp': {
-                'MCP_USER': 'foo.bar',
-                'MCP_PASSWORD': 'WhatsUpDoc',
-                'regions': ['dd-eu', 'dd-na'],
-                }
+            'MCP_USER': 'foo.bar',
+            'MCP_PASSWORD': 'WhatsUpDoc',
+            'regions': ['dd-eu', 'dd-na'],
             }
         pump = Pump(settings)
-        self.assertEqual(pump.lookup('mcp'), pump.settings[ 'mcp' ])
-        self.assertEqual(pump.lookup('mcp.MCP_USER'), 'foo.bar')
-        self.assertEqual(pump.lookup('mcp.MCP_PASSWORD'), 'WhatsUpDoc')
+        self.assertEqual(pump.lookup('MCP_USER'), 'foo.bar')
+        self.assertEqual(pump.lookup('MCP_PASSWORD'), 'WhatsUpDoc')
         self.assertEqual(pump.get_regions(),
                          ['dd-eu', 'dd-na'])
-        self.assertEqual(pump.lookup('mcp.unknown'), None)
+        self.assertEqual(pump.lookup('unknown'), None)
         with self.assertRaises(KeyError):
             pump.lookup('still.unknown')
         with self.assertRaises(KeyError):
