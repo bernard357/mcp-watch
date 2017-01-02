@@ -25,6 +25,8 @@ import time
 from libcloud.compute.providers import get_driver as get_compute_driver
 from libcloud.compute.types import Provider as ComputeProvider
 
+import config
+
 
 class Pump(object):
     """
@@ -51,8 +53,6 @@ class Pump(object):
         """
 
         self.settings = settings
-        if 'mcp' not in settings:
-            settings [ 'mcp' ] = {}
 
         self._userName = None
         self._userPassword = None
@@ -114,7 +114,7 @@ class Pump(object):
         """
 
         if self._userName is None:
-            self._userName = self.lookup('mcp.MCP_USER')
+            self._userName = self.lookup('MCP_USER')
 
         if self._userName is None:
             self._userName = os.getenv('MCP_USER')
@@ -152,7 +152,7 @@ class Pump(object):
         """
 
         if self._userPassword is None:
-            self._userPassword = self.lookup('mcp.MCP_PASSWORD')
+            self._userPassword = self.lookup('MCP_PASSWORD')
 
         if self._userPassword is None:
             self._userPassword = os.getenv('MCP_PASSWORD')
@@ -176,7 +176,7 @@ class Pump(object):
 
         """
 
-        return self.lookup('mcp.regions',
+        return self.lookup('regions',
                            ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
 
     def set_driver(self):
@@ -368,15 +368,33 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
 
-    pump = Pump()
+    # create the pump itself
+    #
+    try:
+        settings = config.pump
+    except:
+        settings = {}
+
+    pump = Pump(settings)
     pump.set_driver()
 
-    from models.influx import InfluxdbUpdater
-    influx = InfluxdbUpdater()
-    influx.reset_database()
+    # add an influxdb updater if one has been defined
+    #
+    try:
+        settings = config.influxdb
 
-    pump.add_updater(influx)
+        logging.debug("loading InfluxDB updater")
+        from models.influx import InfluxdbUpdater
+        updater = InfluxdbUpdater(settings)
+        updater.reset_database()
+        pump.add_updater(updater)
 
+    except AttributeError:
+        logging.debug("no configuration for InfluxDB")
+
+
+    # fetch and dispatch data
+    #
     today = date.today()
     cursor = (today - timedelta(days=90)).replace(day=1)
 

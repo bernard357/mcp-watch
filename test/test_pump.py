@@ -22,6 +22,20 @@ from models.influx import InfluxdbUpdater
 
 class PumpTests(unittest.TestCase):
 
+    def test_config(self):
+
+        print('***** Test config ***')
+
+        import config
+
+        try:
+            settings = config.pump
+        except:
+            settings = {}
+
+        pump = Pump(settings)
+
+
     def test_settings(self):
 
         print('***** Test settings ***')

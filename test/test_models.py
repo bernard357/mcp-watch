@@ -12,11 +12,12 @@ import base64
 import yaml
 import vcr
 
-
 sys.path.insert(0, os.path.abspath('..'))
 
 from models.base import Updater
 from models.influx import InfluxdbUpdater
+
+import config
 
 class ModelsTests(unittest.TestCase):
 
@@ -34,7 +35,13 @@ class ModelsTests(unittest.TestCase):
             updater.reset_database()
 
         with self.assertRaises(NotImplementedError):
+            updater.update_summary_usage()
+
+        with self.assertRaises(NotImplementedError):
             updater.update_detailed_usage()
+
+        with self.assertRaises(NotImplementedError):
+            updater.update_audit_log()
 
     def test_influxdb(self):
 
@@ -42,6 +49,13 @@ class ModelsTests(unittest.TestCase):
 
         updater = InfluxdbUpdater({'a': 'b'})
         self.assertEqual(updater.settings['a'], 'b')
+
+        try:
+            settings = config.influxdb
+        except:
+            settings = {}
+
+        updater = InfluxdbUpdater(settings)
 
 if __name__ == '__main__':
     logging.getLogger('').setLevel(logging.DEBUG)
