@@ -39,7 +39,7 @@ $ sudo service influxdb start
 Put MCP credentials in environment variable:
 
 ```
-$ export MCP_USERNAME='foo.bar'
+$ export MCP_USER='foo.bar'
 $ export MCP_PASSWORD='WhatsUpDoc'
 ```
 

@@ -33,7 +33,7 @@ class Pump(object):
     Under Linux, you may want to edit ``~/.bash_profile`` like this::
 
         # credentials to access cloud resources from Dimension Data
-        export MCP_USERNAME='foo.bar'
+        export MCP_USER='foo.bar'
         export MCP_PASSWORD='WhatsUpDoc'
 
     """
@@ -97,30 +97,30 @@ class Pump(object):
             - if no user name can be found
 
         The user name is normally taken
-        from the environment variable ``MCP_USERNAME``.
+        from the environment variable ``MCP_USER``.
 
         Under Linux, you may want to edit ``~/.bash_profile`` like this::
 
             # credentials to access cloud resources from Dimension Data
-            export MCP_USERNAME='foo.bar'
+            export MCP_USER='foo.bar'
             export MCP_PASSWORD='WhatsUpDoc'
 
         In addition, you can put the value in the configuration file,
         like this::
 
             mcp:
-              MCP_USERNAME: 'foo.bar'
+              MCP_USER: 'foo.bar'
 
         """
 
         if self._userName is None:
-            self._userName = self.lookup('mcp.MCP_USERNAME')
+            self._userName = self.lookup('mcp.MCP_USER')
 
         if self._userName is None:
-            self._userName = os.getenv('MCP_USERNAME')
+            self._userName = os.getenv('MCP_USER')
             if self._userName is None or len(self._userName) < 3:
                 raise Exception(
-                    "Error: missing credentials in environment MCP_USERNAME")
+                    "Error: missing credentials in environment MCP_USER")
 
         return self._userName
 
@@ -140,7 +140,7 @@ class Pump(object):
         Under Linux, you may want to edit ``~/.bash_profile`` like this::
 
             # credentials to access cloud resources from Dimension Data
-            export MCP_USERNAME='foo.bar'
+            export MCP_USER='foo.bar'
             export MCP_PASSWORD='WhatsUpDoc'
 
         In addition, you can put the value in the configuration file,

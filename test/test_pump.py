@@ -40,14 +40,14 @@ class PumpTests(unittest.TestCase):
 
         settings = {
             'mcp': {
-                'MCP_USERNAME': 'foo.bar',
+                'MCP_USER': 'foo.bar',
                 'MCP_PASSWORD': 'WhatsUpDoc',
                 'regions': ['dd-eu', 'dd-na'],
                 }
             }
         pump = Pump(settings)
         self.assertEqual(pump.lookup('mcp'), pump.settings[ 'mcp' ])
-        self.assertEqual(pump.lookup('mcp.MCP_USERNAME'), 'foo.bar')
+        self.assertEqual(pump.lookup('mcp.MCP_USER'), 'foo.bar')
         self.assertEqual(pump.lookup('mcp.MCP_PASSWORD'), 'WhatsUpDoc')
         self.assertEqual(pump.get_regions(),
                          ['dd-eu', 'dd-na'])

@@ -55,8 +55,8 @@ blueprints:
 
                       setuid ubuntu
 
-                      env MCP_USERNAME="{{ environment.MCP_USERNAME }}"
-                      export MCP_USERNAME
+                      env MCP_USER="{{ environment.MCP_USER }}"
+                      export MCP_USER
 
                       env MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
                       export MCP_PASSWORD
@@ -70,7 +70,7 @@ blueprints:
                   permissions: "0755"
                   content: |
                     #!/bin/sh
-                    export MCP_USERNAME="{{ environment.MCP_USERNA%E }}"
+                    export MCP_USER="{{ environment.MCP_USER }}"
                     export MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
 
                 - path: /root/hosts.awk

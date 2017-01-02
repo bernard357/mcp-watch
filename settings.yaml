@@ -8,7 +8,7 @@ mcp:
 
     # should better be set in computer environment
     #
-    # MCP_USERNAME: 'foo.bar'
+    # MCP_USER: 'foo.bar'
 
     # should better be set in computer environment
     #
