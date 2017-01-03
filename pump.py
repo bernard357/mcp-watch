@@ -308,6 +308,7 @@ class Pump(object):
 
         for cursor in iter(queue.get, 'STOP'):
             self.pull(cursor, region)
+            time.sleep(0.5)
 
     def pull(self, on, region='dd-eu'):
         """
