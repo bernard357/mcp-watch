@@ -100,6 +100,14 @@ class FilesUpdater(Updater):
         try:
             logging.debug("- logging into {}".format(file))
 
+            path = os.path.dirname(file)
+            if not os.path.exists(path):
+                try:
+                    os.makedirs(path)
+                except OSError as feedback: # prevent race condition
+                    if feedback.errno != errno.EEXIST:
+                        raise
+
             if os.path.exists(file):
                 mode = 'a'
             else:
@@ -137,6 +145,14 @@ class FilesUpdater(Updater):
         try:
             logging.debug("- logging into {}".format(file))
 
+            path = os.path.dirname(file)
+            if not os.path.exists(path):
+                try:
+                    os.makedirs(path)
+                except OSError as feedback: # prevent race condition
+                    if feedback.errno != errno.EEXIST:
+                        raise
+
             if os.path.exists(file):
                 mode = 'a'
             else:
@@ -172,6 +188,14 @@ class FilesUpdater(Updater):
         file = self.get_audit_log_file()
         try:
             logging.debug("- logging into {}".format(file))
+
+            path = os.path.dirname(file)
+            if not os.path.exists(path):
+                try:
+                    os.makedirs(path)
+                except OSError as feedback: # prevent race condition
+                    if feedback.errno != errno.EEXIST:
+                        raise
 
             if os.path.exists(file):
                 mode = 'a'
