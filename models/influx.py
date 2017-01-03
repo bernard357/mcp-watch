@@ -24,7 +24,7 @@ class InfluxdbUpdater(Updater):
     Updates a database
     """
 
-    def use_database(self):
+    def use_store(self):
         """
         Opens a database to save data
         """
@@ -38,10 +38,12 @@ class InfluxdbUpdater(Updater):
             )
         return self.db
 
-    def reset_database(self):
+    def reset_store(self):
         """
         Opens a database for points
         """
+
+        logging.info('Resetting InfluxDB database')
 
         self.db = InfluxDBClient(
             self.settings.get('host', 'localhost'),
@@ -117,10 +119,15 @@ class InfluxdbUpdater(Updater):
 
             measurements.append(measurement)
 
-        self.db.write_points(measurements)
+        try:
+            self.db.write_points(measurements)
 
-        logging.info("- stored {} measurements for {} in influxdb".format(
-            len(measurements), region))
+            logging.info("- stored {} measurements for {} in influxdb".format(
+                len(measurements), region))
+
+        except Error as feedback:
+            logging.warning('- unable to update influxdb')
+            logging.warning(str(feedback))
 
     def update_detailed_usage(self, items=[], region='dd-eu'):
         """
@@ -204,10 +211,15 @@ class InfluxdbUpdater(Updater):
 
             measurements.append(measurement)
 
-        self.db.write_points(measurements)
+        try:
+            self.db.write_points(measurements)
 
-        logging.info("- stored {} measurements for {} in influxdb".format(
-            len(measurements), region))
+            logging.info("- stored {} measurements for {} in influxdb".format(
+                len(measurements), region))
+
+        except Error as feedback:
+            logging.warning('- unable to update influxdb')
+            logging.warning(str(feedback))
 
     def update_audit_log(self, items=[], region='dd-eu'):
         """
@@ -253,7 +265,14 @@ class InfluxdbUpdater(Updater):
 
             measurements.append(measurement)
 
-        self.db.write_points(measurements)
+        try:
+            self.db.write_points(measurements)
 
-        logging.info("- stored {} measurements for {} in influxdb".format(
-            len(measurements), region))
+            logging.info("- stored {} measurements for {} in influxdb".format(
+                len(measurements), region))
+
+        except Error as feedback:
+            logging.warning('- unable to update influxdb')
+            logging.warning(str(feedback))
+
+

@@ -32,26 +32,25 @@ class FilesUpdater(Updater):
     def get_audit_log_file(self):
         return self.settings.get('audit_log', './logs/audit_log.log')
 
-    def use_database(self):
+    def use_store(self):
         """
         Opens a database to save data
         """
 
         pass
 
-    def reset_database(self):
+    def reset_store(self):
         """
         Opens a database for points
         """
 
+        logging.info('Truncating log files')
+
         file = self.get_summary_usage_file()
         try:
-            if os.path.exists(file):
-                mode = 'a'
-            else:
-                mode = 'w'
+            logging.debug('- {}'.format(file))
 
-            with open(file, mode) as handle:
+            with open(file, 'w') as handle:
                 handle.truncate()
 
         except:
@@ -59,12 +58,9 @@ class FilesUpdater(Updater):
 
         file = self.get_detailed_usage_file()
         try:
-            if os.path.exists(file):
-                mode = 'a'
-            else:
-                mode = 'w'
+            logging.debug('- {}'.format(file))
 
-            with open(file, mode) as handle:
+            with open(file, 'w') as handle:
                 handle.truncate()
 
         except:
@@ -72,12 +68,9 @@ class FilesUpdater(Updater):
 
         file = self.get_audit_log_file()
         try:
-            if os.path.exists(file):
-                mode = 'a'
-            else:
-                mode = 'w'
+            logging.debug('- {}'.format(file))
 
-            with open(file, mode) as handle:
+            with open(file, 'w') as handle:
                 handle.truncate()
 
         except:

@@ -30,10 +30,10 @@ class ModelsTests(unittest.TestCase):
         self.assertEqual(updater.settings['a'], 'b')
 
         with self.assertRaises(NotImplementedError):
-            updater.use_database()
+            updater.use_store()
 
         with self.assertRaises(NotImplementedError):
-            updater.reset_database()
+            updater.reset_store()
 
         with self.assertRaises(NotImplementedError):
             updater.update_summary_usage()
@@ -67,9 +67,9 @@ class ModelsTests(unittest.TestCase):
 
         updater = FilesUpdater(settings)
 
-        updater.use_database()
+        updater.use_store()
 
-        updater.reset_database()
+        updater.reset_store()
 
         updater.update_summary_usage()
 

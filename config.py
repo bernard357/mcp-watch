@@ -7,7 +7,7 @@ pump = {
 
     # regions to be analysed
     #
-    'regions': ['dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'],
+    # 'regions': ['dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'],
 
     # should better be set in computer environment
     #
@@ -20,7 +20,7 @@ pump = {
     }
 
 #
-# file settings -- uncomment and edit to save on local files
+# file settings -- uncomment and edit to store data in local files
 #
 
 files = {

@@ -82,7 +82,7 @@ class Pump(object):
                 settings = settings[ token ]
             else:
                 raise KeyError(
-                    "Error: missing configuration '{}'".format(token))
+                    "Missing configuration '{}'".format(token))
 
         return settings.get(label, default)
 
@@ -120,7 +120,7 @@ class Pump(object):
             self._userName = os.getenv('MCP_USER')
             if self._userName is None or len(self._userName) < 3:
                 raise Exception(
-                    "Error: missing credentials in environment MCP_USER")
+                    "Missing credentials in environment MCP_USER")
 
         return self._userName
 
@@ -158,7 +158,7 @@ class Pump(object):
             self._userPassword = os.getenv('MCP_PASSWORD')
             if self._userPassword is None or len(self._userPassword) < 3:
                 raise Exception(
-                    "Error: missing credentials in environment MCP_PASSWORD")
+                    "Missing credentials in environment MCP_PASSWORD")
 
         return self._userPassword
 
@@ -199,42 +199,76 @@ class Pump(object):
 
         return self.engines
 
-    def pump(self, begin=None, end=None, continuously=False):
+    def get_date(self, horizon='90d', since=None):
+        """
+        Computes target date
+
+        :param horizon: amount of time in the past, e.g., '90d', '3m', '1y'
+        :type horizon: ``str`` or `None`
+
+        :param since: staring date for computation
+        :type since: ``date`` or `None`
+
+        :return: the related date, e.g., date(2016, 11, 30)
+        :rtype: ``date``
+
+        """
+
+        if since is None:
+            since = date.today()
+
+        if horizon.endswith('y'):
+            years = int(horizon.strip('y'))
+            target = date(since.year - years, 1, 1)
+
+        elif horizon.endswith('m'):
+            months = int(horizon.strip('m'))
+            years = int(months/12)
+            months = months%12
+            target = date(since.year - years, since.month - months, 1)
+
+        elif horizon.endswith('d'):
+            days = int(horizon.strip('d'))
+            target = (since - timedelta(days=days))
+
+        else:
+            raise ValueError('Incorrect horizon value')
+
+        return target
+
+
+    def pump(self, since=None, forever=True):
         """
         Pumps data continuously
 
-        :param begin: the beginning date, e.g., date(2016, 09, 01)
-        :type begin: ``date`` or `None`
+        :param since: the beginning date, e.g., date(2016, 09, 01)
+        :type since: ``date`` or `None`
 
-        :param end: the ending day, e.g., date(2016, 11, 30)
-        :type end: ``date`` or `None`
-
-        :param continuously: loop until Ctrl-C
-        :type continuusly: `True` or `False`
+        :param forever: loop until Ctrl-C or not
+        :type forever: `True` or `False`
 
         """
 
-        if end is None:
-            end = date.today()
+        head = since if since else date.today()
 
-        if begin:
+        tail = date.today()
 
-            cursor = begin
-            while cursor < end:
-                logging.info("Pulling data for {}".format(cursor))
-                self.pull_all(on=cursor)
-                cursor += timedelta(days=1)
+        while head < tail:
+            logging.info("Pulling data for {}".format(head))
+            self.pull_all(on=head)
+            head += timedelta(days=1)
 
-        while continuously:
+        while forever:
 
-            if cursor < end:
-                logging.info("Pulling data for {}".format(cursor))
-                self.pull_all(on=cursor)
-                cursor += timedelta(days=1)
+            if head < tail:
+                logging.info("Pulling data for {}".format(head))
+                self.pull_all(on=head)
+                head += timedelta(days=1)
 
             else:
+                logging.debug("Waiting for next day")
                 time.sleep(60)
-                end = date.today()
+                tail = date.today()
 
     def pull_all(self, on):
         """
@@ -292,10 +326,20 @@ class Pump(object):
             end_date)
 
         if len(items) > 0:
-            items.pop(-1)
 
-        logging.info("- found {} items for {} on {}".format(
-            len(items), region, end_date))
+            first = ','.join(items[0])
+
+            if len(first) < 1 or first.startswith(('<!DOCTYPE', '<?xml')):
+                logging.debug('Data could not be fetched')
+                logging.debug(items)
+                items = []
+                logging.warning("- no item could be found for {} on {}".format(
+                    region, end_date))
+
+            else:
+                items.pop(-1)
+                logging.debug("- found {} items for {} on {}".format(
+                    len(items), region, end_date))
 
         return items
 
@@ -321,10 +365,20 @@ class Pump(object):
             end_date)
 
         if len(items) > 0:
-            items.pop(-1)
 
-        logging.info("- found {} items for {} on {}".format(
-            len(items), region, end_date))
+            first = ','.join(items[0])
+
+            if len(first) < 1 or first.startswith(('<!DOCTYPE', '<?xml')):
+                logging.debug('Data could not be fetched')
+                logging.debug(items)
+                items = []
+                logging.warning("- no item could be found for {} on {}".format(
+                    region, end_date))
+
+            else:
+                items.pop(-1)
+                logging.debug("- found {} items for {} on {}".format(
+                    len(items), region, end_date))
 
         return items
 
@@ -349,8 +403,20 @@ class Pump(object):
             start_date,
             end_date)
 
-        logging.debug("- found {} items for {} on {}".format(
-            len(items), region, end_date))
+        if len(items) > 0:
+
+            first = ','.join(items[0])
+
+            if len(first) < 1 or first.startswith(('<!DOCTYPE', '<?xml')):
+                logging.debug('Data could not be fetched')
+                logging.debug(items)
+                items = []
+                logging.warning("- no item could be found for {} on {}".format(
+                    region, end_date))
+
+            else:
+                logging.debug("- found {} items for {} on {}".format(
+                    len(items), region, end_date))
 
         return items
 
@@ -378,7 +444,13 @@ class Pump(object):
         """
 
         for updater in self.updaters:
-            updater.update_summary_usage(list(items), region)
+
+            try:
+                updater.update_summary_usage(list(items), region)
+
+            except IndexError:
+                logging.error('Invalid index in provided data')
+                logging.error(items)
 
     def update_detailed_usage(self, items, region='dd-eu'):
         """
@@ -393,7 +465,13 @@ class Pump(object):
         """
 
         for updater in self.updaters:
-            updater.update_detailed_usage(list(items), region)
+
+            try:
+                updater.update_detailed_usage(list(items), region)
+
+            except IndexError:
+                logging.error('Invalid index in provided data')
+                logging.error(items)
 
     def update_audit_log(self, items, region='dd-eu'):
         """
@@ -408,7 +486,13 @@ class Pump(object):
         """
 
         for updater in self.updaters:
-            updater.update_audit_log(list(items), region)
+
+            try:
+                updater.update_audit_log(list(items), region)
+
+            except IndexError:
+                logging.error('Invalid index in provided data')
+                logging.error(items)
 
 # the program launched from the command line
 #
@@ -416,8 +500,8 @@ if __name__ == "__main__":
 
     # uncomment only one
     #
-    #logging.basicConfig(format='%(message)s', level=logging.INFO)
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
+    #logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # create the pump itself
     #
@@ -429,39 +513,62 @@ if __name__ == "__main__":
     pump = Pump(settings)
     pump.set_driver()
 
-    # log data in files
+    # get args
+    #
+
+    horizon = None
+    if len(sys.argv) > 1:
+        horizon = sys.argv[1]
+
+        if horizon[-1] not in ('d', 'm', 'y'):
+            print('usage: pump [<horizon>]')
+            print('examples:')
+            print('pump')
+            print('pump 90d')
+            print('pump 3m')
+            print('pump 12m')
+            print('pump 1y')
+            sys.exit(1)
+
+        horizon = pump.get_date(horizon)
+        logging.info('Pumping since {}'.format(horizon))
+
+    # log data in files as per configuration
     #
     try:
         settings = config.files
 
-        logging.debug("storing data in files")
+        logging.debug("Storing data in files")
         from models.files import FilesUpdater
         updater = FilesUpdater(settings)
-        updater.reset_database()
+        if horizon:
+            updater.reset_store()
+        else:
+            updater.use_store()
         pump.add_updater(updater)
 
     except AttributeError:
-        logging.debug("no configuration for file storage")
+        logging.debug("No configuration for file storage")
 
 
-    # add an influxdb updater if one has been defined
+    # add an influxdb updater as per configuration
     #
     try:
         settings = config.influxdb
 
-        logging.debug("storing data in InfluxDB")
+        logging.debug("Storing data in InfluxDB")
         from models.influx import InfluxdbUpdater
         updater = InfluxdbUpdater(settings)
-        updater.reset_database()
+        if horizon:
+            updater.reset_store()
+        else:
+            updater.use_store()
         pump.add_updater(updater)
 
     except AttributeError:
-        logging.debug("no configuration for InfluxDB")
+        logging.debug("No configuration for InfluxDB")
 
 
     # fetch and dispatch data
     #
-    today = date.today()
-    cursor = (today - timedelta(days=90)).replace(day=1)
-
-    pump.pump(begin=cursor, end=today)
+    pump.pump(since=horizon)

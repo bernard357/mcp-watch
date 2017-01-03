@@ -30,14 +30,14 @@ class Updater(object):
 
         self.settings = settings
 
-    def use_database(self):
+    def use_store(self):
         """
         Opens an existing database to update it
         """
 
         raise NotImplementedError
 
-    def reset_database(self):
+    def reset_store(self):
         """
         Creates or resets a database to receive updates
         """
