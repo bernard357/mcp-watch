@@ -271,7 +271,7 @@ class InfluxdbUpdater(Updater):
             logging.info("- stored {} measurements for {} in influxdb".format(
                 len(measurements), region))
 
-        except Error as feedback:
+        except Exception as feedback:
             logging.warning('- unable to update influxdb')
             logging.warning(str(feedback))
 
