@@ -423,7 +423,10 @@ class Pump(object):
 #
 if __name__ == "__main__":
 
-    logging.basicConfig(level=logging.INFO)
+    # uncomment only one
+    #
+    #logging.basicConfig(format='%(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # create the pump itself
     #
