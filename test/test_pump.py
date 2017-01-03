@@ -80,12 +80,14 @@ class PumpTests(unittest.TestCase):
         print('***** Test fetch summary usage ***')
 
         items = pump.fetch_summary_usage(on=someday)
+        items.pop(0)
 
         name = 'fixtures/summary-usage-dd-eu.yaml'
         lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
         if os.path.isfile(lname):
             with open(lname, 'r') as handle:
                 expected = yaml.load(handle)
+                expected.pop()
                 self.assertEqual(items, expected)
 
         else:
@@ -95,6 +97,7 @@ class PumpTests(unittest.TestCase):
         print('***** Test fetch detailed usage ***')
 
         items = pump.fetch_detailed_usage(on=someday)
+        items.pop(0)
 
         name = 'fixtures/detailed-usage-dd-eu.yaml'
         lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
