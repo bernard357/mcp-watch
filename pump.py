@@ -267,6 +267,9 @@ class Pump(object):
         items = self.fetch_detailed_usage(on, region)
         self.update_detailed_usage(items, region)
 
+        items = self.fetch_audit_log(on, region)
+        self.update_audit_log(items, region)
+
     def fetch_summary_usage(self, on, region='dd-eu'):
         """
         Fetches and returns summary usage
@@ -288,7 +291,11 @@ class Pump(object):
             start_date,
             end_date)
 
-        items.pop(0)
+        headers = items.pop(0)
+        logging.debug("- headers: {}".format(headers))
+
+        if len(items) > 0:
+            items.pop(-1)
 
         logging.info("- found {} items for {} on {}".format(
             len(items), region, end_date))
@@ -316,7 +323,40 @@ class Pump(object):
             start_date,
             end_date)
 
-        items.pop(0)
+        headers = items.pop(0)
+        logging.debug("- headers: {}".format(headers))
+
+        if len(items) > 0:
+            items.pop(-1)
+
+        logging.info("- found {} items for {} on {}".format(
+            len(items), region, end_date))
+
+        return items
+
+    def fetch_audit_log(self, on, region='dd-eu'):
+        """
+        Fetches and returns audit log records
+
+        :param on: the target day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        logging.info("Fetching audit log for {}".format(region))
+
+        start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
+        end_date = on.strftime("%Y-%m-%d")
+
+        items = self.engines[region].ex_audit_log_report(
+            start_date,
+            end_date)
+
+        headers = items.pop(0)
+        logging.debug("- headers: {}".format(headers))
 
         logging.info("- found {} items for {} on {}".format(
             len(items), region, end_date))
@@ -345,6 +385,7 @@ class Pump(object):
         :type region: ``str``
 
         """
+
         for updater in self.updaters:
             updater.update_summary_usage(items, region)
 
@@ -359,8 +400,24 @@ class Pump(object):
         :type region: ``str``
 
         """
+
         for updater in self.updaters:
             updater.update_detailed_usage(items, region)
+
+    def update_audit_log(self, items, region='dd-eu'):
+        """
+        Saves records of audit log
+
+        :param items: to be recorded in database
+        :type items: ``list`` of ``dict``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        for updater in self.updaters:
+            updater.update_audit_log(items, region)
 
 # the program launched from the command line
 #
@@ -378,12 +435,27 @@ if __name__ == "__main__":
     pump = Pump(settings)
     pump.set_driver()
 
+    # log data in files
+    #
+    try:
+        settings = config.files
+
+        logging.debug("storing data in files")
+        from models.files import FilesUpdater
+        updater = FilesUpdater(settings)
+        updater.reset_database()
+        pump.add_updater(updater)
+
+    except AttributeError:
+        logging.debug("no configuration for file storage")
+
+
     # add an influxdb updater if one has been defined
     #
     try:
         settings = config.influxdb
 
-        logging.debug("loading InfluxDB updater")
+        logging.debug("storing data in InfluxDB")
         from models.influx import InfluxdbUpdater
         updater = InfluxdbUpdater(settings)
         updater.reset_database()

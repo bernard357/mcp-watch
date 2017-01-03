@@ -54,7 +54,7 @@ class InfluxdbUpdater(Updater):
         self.db.create_database(self.settings.get('database', 'mcp'))
         return self.db
 
-    def update_summary_usage(self, items, region='dd-eu'):
+    def update_summary_usage(self, items=[], region='dd-eu'):
         """
         Updates summary usage records
 
@@ -118,7 +118,7 @@ class InfluxdbUpdater(Updater):
 
         self.db.write_points(measurements)
 
-    def update_detailed_usage(self, items, region='dd-eu'):
+    def update_detailed_usage(self, items=[], region='dd-eu'):
         """
         Updates detailed usage records
 

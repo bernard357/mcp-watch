@@ -20,6 +20,16 @@ pump = {
     }
 
 #
+# file settings -- uncomment and edit to save on local files
+#
+
+files = {
+    'summary_usage': './summary_usage.log',
+    'detailed_usage': './detailed_usage.log',
+    'audit_log': './audit_log.log',
+    }
+
+#
 # InfluxDB settings -- uncomment and edit if you have an influxdb server
 #
 

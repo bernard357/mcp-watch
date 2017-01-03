@@ -136,3 +136,17 @@ class Updater(object):
         """
 
         raise NotImplementedError
+
+    def update_audit_log(self, items=[], region='dd-eu'):
+        """
+        Updates audit log records
+
+        :param items: new items to push to the database
+        :type items: ``list`` of ``list``
+
+        :param region: source of the information, e.g., 'dd-eu' or other region
+        :type region: ``str``
+
+        """
+
+        raise NotImplementedError

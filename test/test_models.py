@@ -15,6 +15,7 @@ import vcr
 sys.path.insert(0, os.path.abspath('..'))
 
 from models.base import Updater
+from models.files import FilesUpdater
 from models.influx import InfluxdbUpdater
 
 import config
@@ -42,6 +43,30 @@ class ModelsTests(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             updater.update_audit_log()
+
+    def test_files(self):
+
+        print('***** Test files ***')
+
+        updater = FilesUpdater({'a': 'b'})
+        self.assertEqual(updater.settings['a'], 'b')
+
+        try:
+            settings = config.files
+        except:
+            settings = {}
+
+        updater = FilesUpdater(settings)
+
+        updater.use_database()
+
+        updater.reset_database()
+
+        updater.update_summary_usage()
+
+        updater.update_detailed_usage()
+
+        updater.update_audit_log()
 
     def test_influxdb(self):
 
