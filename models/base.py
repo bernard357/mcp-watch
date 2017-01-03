@@ -147,6 +147,19 @@ class Updater(object):
         :param region: source of the information, e.g., 'dd-eu' or other region
         :type region: ``str``
 
+        Items provided have the following structure:
+        - UUID
+        - Time
+        - Create User
+        - Department
+        - Customer Defined 1
+        - Customer Defined 2
+        - Type
+        - Name
+        - Action
+        - Details
+        - Response Code
+
         """
 
         raise NotImplementedError
