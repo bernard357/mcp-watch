@@ -233,7 +233,7 @@ class InfluxdbUpdater(Updater):
                     "measurement": 'Audit log',
                     "tags": {
                         "region": region,
-                        "caller": item[2],
+                        "caller": item[2].lower().replace('.', ' '),
                         "department": item[3],
                         "custom-1": item[4],
                         "custom-2": item[5],
