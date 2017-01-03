@@ -73,7 +73,7 @@ class PumpTests(unittest.TestCase):
     def test_mcp(self):
 
         pump = Pump()
-        pump.set_driver()
+        pump.set_drivers()
 
         someday = date(2016, 11, 30)
 
@@ -117,7 +117,7 @@ class PumpTests(unittest.TestCase):
     def test_update(self):
 
         pump = Pump()
-        pump.set_driver()
+        pump.set_drivers()
 
         influx = InfluxdbUpdater()
         pump.add_updater(influx)

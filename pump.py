@@ -15,6 +15,7 @@
 
 from datetime import date, datetime, timedelta
 import logging
+from multiprocessing import Process, Queue
 import os
 import requests
 from six import string_types
@@ -58,6 +59,7 @@ class Pump(object):
         self._userPassword = None
 
         self.engines = {}
+        self.queues = []
 
         self.updaters = []
 
@@ -179,9 +181,9 @@ class Pump(object):
         return self.lookup('regions',
                            ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
 
-    def set_driver(self):
+    def set_drivers(self):
         """
-        Sets a compute driver from Apache Libcloud
+        Sets compute drivers from Apache Libcloud
 
         """
 
@@ -198,6 +200,26 @@ class Pump(object):
                 host=None)
 
         return self.engines
+
+    def set_workers(self):
+        """
+        Sets processing workers
+
+        """
+
+        self.queues = []
+
+        for region in self.get_regions():
+
+            q = Queue()
+
+            w = Process(target=self.work, args=(q, region))
+            w.daemon = True
+            w.start()
+
+            self.queues.append(q)
+
+        return self.queues
 
     def get_date(self, horizon='90d', since=None):
         """
@@ -254,15 +276,17 @@ class Pump(object):
         tail = date.today()
 
         while head < tail:
-            logging.info("Pulling data for {}".format(head))
-            self.pull_all(on=head)
+            logging.info("Pumping data for {}".format(head))
+            for queue in self.queues:
+                queue.put(head)
             head += timedelta(days=1)
 
         while forever:
 
             if head < tail:
-                logging.info("Pulling data for {}".format(head))
-                self.pull_all(on=head)
+                logging.info("Pumping data for {}".format(head))
+                for queue in self.queues:
+                    queue.put(head)
                 head += timedelta(days=1)
 
             else:
@@ -278,10 +302,12 @@ class Pump(object):
         :type on: ``date``
 
         """
-        logging.info("Considering {}".format(', '.join(self.engines.keys())))
 
-        for region in self.engines.keys():
-            self.pull(on=on, region=region)
+
+    def work(self, queue, region):
+
+        for cursor in iter(queue.get, 'STOP'):
+            self.pull(cursor, region)
 
     def pull(self, on, region='dd-eu'):
         """
@@ -316,7 +342,7 @@ class Pump(object):
 
         """
 
-        logging.info("Fetching summary usage for {}".format(region))
+        logging.info("Fetching summary usage for {} on {}".format(region, on.strftime("%Y-%m-%d")))
 
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
@@ -355,7 +381,7 @@ class Pump(object):
 
         """
 
-        logging.info("Fetching detailed usage for {}".format(region))
+        logging.info("Fetching detailed usage for {} on {}".format(region, on.strftime("%Y-%m-%d")))
 
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
@@ -394,7 +420,7 @@ class Pump(object):
 
         """
 
-        logging.info("Fetching audit log for {}".format(region))
+        logging.info("Fetching audit log for {} on {}".format(region, on.strftime("%Y-%m-%d")))
 
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
@@ -511,7 +537,6 @@ if __name__ == "__main__":
         settings = {}
 
     pump = Pump(settings)
-    pump.set_driver()
 
     # get args
     #
@@ -568,7 +593,12 @@ if __name__ == "__main__":
     except AttributeError:
         logging.debug("No configuration for InfluxDB")
 
+    if len(pump.updaters) < 1:
+        logger.warning('No updater has been configured, check config.py')
+        time.sleep(5)
 
     # fetch and dispatch data
     #
+    pump.set_drivers()
+    pump.set_workers()
     pump.pump(since=horizon)
