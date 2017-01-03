@@ -291,9 +291,6 @@ class Pump(object):
             start_date,
             end_date)
 
-        headers = items.pop(0)
-        logging.debug("- headers: {}".format(headers))
-
         if len(items) > 0:
             items.pop(-1)
 
@@ -322,9 +319,6 @@ class Pump(object):
         items = self.engines[region].ex_detailed_usage_report(
             start_date,
             end_date)
-
-        headers = items.pop(0)
-        logging.debug("- headers: {}".format(headers))
 
         if len(items) > 0:
             items.pop(-1)
@@ -355,10 +349,7 @@ class Pump(object):
             start_date,
             end_date)
 
-        headers = items.pop(0)
-        logging.debug("- headers: {}".format(headers))
-
-        logging.info("- found {} items for {} on {}".format(
+        logging.debug("- found {} items for {} on {}".format(
             len(items), region, end_date))
 
         return items
@@ -387,7 +378,7 @@ class Pump(object):
         """
 
         for updater in self.updaters:
-            updater.update_summary_usage(items, region)
+            updater.update_summary_usage(list(items), region)
 
     def update_detailed_usage(self, items, region='dd-eu'):
         """
@@ -402,7 +393,7 @@ class Pump(object):
         """
 
         for updater in self.updaters:
-            updater.update_detailed_usage(items, region)
+            updater.update_detailed_usage(list(items), region)
 
     def update_audit_log(self, items, region='dd-eu'):
         """
@@ -417,7 +408,7 @@ class Pump(object):
         """
 
         for updater in self.updaters:
-            updater.update_audit_log(items, region)
+            updater.update_audit_log(list(items), region)
 
 # the program launched from the command line
 #

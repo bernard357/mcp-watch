@@ -24,20 +24,20 @@ pump = {
 #
 
 files = {
-    'summary_usage': './summary_usage.log',
-    'detailed_usage': './detailed_usage.log',
-    'audit_log': './audit_log.log',
+    'summary_usage': './logs/summary_usage.log',
+    'detailed_usage': './logs/detailed_usage.log',
+    'audit_log': './logs/audit_log.log',
     }
 
 #
 # InfluxDB settings -- uncomment and edit if you have an influxdb server
 #
 
-#influxdb = {
-#    'host': 'localhost',
-#    'port': 8086,
-#    'user': 'root',
-#    'password': 'root',
-#    'database': 'mcp',
-#    }
+influxdb = {
+    'host': 'localhost',
+    'port': 8086,
+    'user': 'root',
+    'password': 'root',
+    'database': 'mcp',
+    }
 

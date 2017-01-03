@@ -23,6 +23,15 @@ class FilesUpdater(Updater):
     Updates files
     """
 
+    def get_summary_usage_file(self):
+        return self.settings.get('summary_usage', './logs/summary_usage.log')
+
+    def get_detailed_usage_file(self):
+        return self.settings.get('detailed_usage', './logs/detailed_usage.log')
+
+    def get_audit_log_file(self):
+        return self.settings.get('audit_log', './logs/audit_log.log')
+
     def use_database(self):
         """
         Opens a database to save data
@@ -35,7 +44,7 @@ class FilesUpdater(Updater):
         Opens a database for points
         """
 
-        file = self.settings.get('summary_usage', './summary_usage.log')
+        file = self.get_summary_usage_file()
         try:
             if os.path.exists(file):
                 mode = 'a'
@@ -46,9 +55,9 @@ class FilesUpdater(Updater):
                 handle.truncate()
 
         except:
-            logging.debug("could not truncate {}".format(file))
+            logging.warning("could not truncate {}".format(file))
 
-        file = self.settings.get('detailed_usage', './detailed_usage.log')
+        file = self.get_detailed_usage_file()
         try:
             if os.path.exists(file):
                 mode = 'a'
@@ -59,9 +68,9 @@ class FilesUpdater(Updater):
                 handle.truncate()
 
         except:
-            logging.debug("could not truncate {}".format(file))
+            logging.warning("could not truncate {}".format(file))
 
-        file = self.settings.get('audit_log', './audit_log.log')
+        file = self.get_audit_log_file()
         try:
             if os.path.exists(file):
                 mode = 'a'
@@ -72,7 +81,7 @@ class FilesUpdater(Updater):
                 handle.truncate()
 
         except:
-            logging.debug("could not truncate {}".format(file))
+            logging.warning("could not truncate {}".format(file))
 
 
     def update_summary_usage(self, items=[], region='dd-eu'):
@@ -87,9 +96,9 @@ class FilesUpdater(Updater):
 
         """
 
-        file = self.settings.get('summary_usage', './summary_usage.log')
+        file = self.get_summary_usage_file()
         try:
-            logging.debug("logging into {}".format(file))
+            logging.debug("- logging into {}".format(file))
 
             if os.path.exists(file):
                 mode = 'a'
@@ -98,14 +107,18 @@ class FilesUpdater(Updater):
 
             with open(file, mode) as handle:
 
+                if len(items) > 0:
+                    headers = items.pop(0)
+                    logging.debug("- headers: {}".format(headers))
+
                 for item in items:
                     handle.write(str(item)+'\n')
 
-            logging.info("Found {} measurements for {}".format(
+            logging.info("- logged {} measurements for {}".format(
                 len(items), region))
 
         except:
-            logging.debug("could not update {}".format(file))
+            logging.warning("- could not update {}".format(file))
 
 
     def update_detailed_usage(self, items=[], region='dd-eu'):
@@ -120,9 +133,9 @@ class FilesUpdater(Updater):
 
         """
 
-        file = self.settings.get('detailed_usage', './detailed_usage.log')
+        file = self.get_detailed_usage_file()
         try:
-            logging.debug("logging into {}".format(file))
+            logging.debug("- logging into {}".format(file))
 
             if os.path.exists(file):
                 mode = 'a'
@@ -131,14 +144,18 @@ class FilesUpdater(Updater):
 
             with open(file, mode) as handle:
 
+                if len(items) > 0:
+                    headers = items.pop(0)
+                    logging.debug("- headers: {}".format(headers))
+
                 for item in items:
                     handle.write(str(item)+'\n')
 
-            logging.info("Found {} measurements for {}".format(
+            logging.info("- logged {} measurements for {}".format(
                 len(items), region))
 
         except:
-            logging.debug("could not update {}".format(file))
+            logging.warning("- could not update {}".format(file))
 
     def update_audit_log(self, items=[], region='dd-eu'):
         """
@@ -152,9 +169,9 @@ class FilesUpdater(Updater):
 
         """
 
-        file = self.settings.get('audit_log', './audit_log.log')
+        file = self.get_audit_log_file()
         try:
-            logging.debug("logging into {}".format(file))
+            logging.debug("- logging into {}".format(file))
 
             if os.path.exists(file):
                 mode = 'a'
@@ -163,12 +180,15 @@ class FilesUpdater(Updater):
 
             with open(file, mode) as handle:
 
+                if len(items) > 0:
+                    headers = items.pop(0)
+                    logging.debug("- headers: {}".format(headers))
+
                 for item in items:
                     handle.write(str(item)+'\n')
 
-            logging.info("Found {} measurements for {}".format(
+            logging.info("- logged {} measurements for {}".format(
                 len(items), region))
 
         except:
-            logging.debug("could not update {}".format(file))
-
+            logging.warning("- could not update {}".format(file))

@@ -51,6 +51,15 @@ class ModelsTests(unittest.TestCase):
         updater = FilesUpdater({'a': 'b'})
         self.assertEqual(updater.settings['a'], 'b')
 
+        self.assertEqual(updater.get_summary_usage_file(),
+                         './logs/summary_usage.log')
+
+        self.assertEqual(updater.get_detailed_usage_file(),
+                         './logs/detailed_usage.log')
+
+        self.assertEqual(updater.get_audit_log_file(),
+                         './logs/audit_log.log')
+
         try:
             settings = config.files
         except:

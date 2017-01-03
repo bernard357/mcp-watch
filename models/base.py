@@ -97,16 +97,13 @@ class Updater(object):
         :param region: source of the information, e.g., 'dd-eu' or other region
         :type region: ``str``
 
-        Items provided have the following structure:
+        Items provided have more or less the following structure:
         - Name
         - UUID
         - Type
         - Location
         - Private IP Address
         - Status
-        - "user: Country"
-        - "user: EUITAAS_Tag"
-        - "user: Test_Agenda"
         - Start Time
         - End Time
         - Duration (Hours)
