@@ -294,16 +294,6 @@ class Pump(object):
                 time.sleep(60)
                 tail = date.today()
 
-    def pull_all(self, on):
-        """
-        Pulls data for one day, across all regions
-
-        :param on: the target day, e.g., date(2016, 11, 30)
-        :type on: ``date``
-
-        """
-
-
     def work(self, queue, region):
 
         for cursor in iter(queue.get, 'STOP'):
