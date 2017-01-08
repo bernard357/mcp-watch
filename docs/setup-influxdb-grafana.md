@@ -1,24 +1,16 @@
-# MCP Watch
-Pump logs from the global Managed Cloud Platform and monitor resource consumption
-over time.
+# Setup MCP Watch with InfluxDB and Grafana
 
-![Summary Usage](docs/media/summary-usage.png)
+On this page you will find instructions to install MCP Watch with InfluxDB and Grafana.
 
-## What is this?
+![architecture](media/architecture-influxdb-grafana.png)
 
-Since the API from Dimension Data exposes interesting consumption information,
-we show in this project how to build a beautiful dashboard with [Grafana](http://grafana.org/) and with [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/).
+Everything you need can be installed on one single computer, or on multiple:
+- the `mcp-pump` software
+- the InfluxDB database
+- the Grafana web dashboard
 
-## How to do the same?
-
-You will need some elements:
-- a computer with Internet access
-- MCP credentials
-- enough skills to install Grafana and InfluxDB
-
-The following is the very minimum viable product we could design. Thanks for your feed-back and comments.
-
-## Setup steps
+The computer that will run `mcp-pump` should be given access to public Internet, so that it
+can interact with the API endpoints and fetch data from them.
 
 ### Install InfluxDB as data store
 
@@ -45,7 +37,7 @@ $ export MCP_PASSWORD='WhatsUpDoc'
 
 You will need git and [Apache Libcloud installed](https://libcloud.readthedocs.io/en/latest/getting_started.html) as pre-requisites.
 
-Download the code from GitHub and run it:
+Download the `mcp-pump` code from GitHub and run it:
 
 ```
 $ git clone https://github.com/bernard357/mcp-pump.git
@@ -77,4 +69,3 @@ with fantastic rendering capabilities of Grafana.
 Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location to get more details.
 
 ![CPU Hours](docs/media/cpu-hours.png)
-
