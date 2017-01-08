@@ -2,7 +2,7 @@
 Pump logs from the global Managed Cloud Platform and monitor resource consumption
 over time.
 
-![Summary Usage](docs/summary-usage.png)
+![Summary Usage](docs/media/summary-usage.png)
 
 ## What is this?
 
@@ -54,7 +54,7 @@ $ pip install -r requirements.txt
 $ python pump.py
 ```
 
-![pumping](docs/pumping.png)
+![pumping](docs/media/pumping.png)
 
 ### Install Grafana and visualize data
 
@@ -76,5 +76,5 @@ with fantastic rendering capabilities of Grafana.
 
 Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location to get more details.
 
-![CPU Hours](docs/cpu-hours.png)
+![CPU Hours](docs/media/cpu-hours.png)
 
