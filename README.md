@@ -1,4 +1,4 @@
-# MCP Watch
+# The MCP Watch project
 
 Pump logs from the global [Managed Cloud Platform](http://www.dimensiondata.com/Global/Solutions/Cloud/) from Dimension Data, monitor resource consumption over time and dig into visual analytics.
 
@@ -52,6 +52,14 @@ Check [detailed instructions](docs/setup-influxdb-grafana.md) for step-by-step d
 Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location to get more details.
 
 ![CPU Hours](docs/media/cpu-hours.png)
+
+## Where to find additional assistance?
+
+Well, maybe you would like to check [Frequently asked questions](docs/questions.md) and related responses.
+Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+
+If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
+other digital practitioners.
 
 ## How would you like to contribute?
 
