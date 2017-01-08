@@ -28,7 +28,7 @@ $ sudo service influxdb start
 
 ### Install and start the pump
 
-Put MCP credentials in environment variable:
+Put MCP credentials in environment variables:
 
 ```
 $ export MCP_USER='foo.bar'
@@ -46,7 +46,7 @@ $ pip install -r requirements.txt
 $ python pump.py
 ```
 
-![pumping](docs/media/pumping.png)
+![pumping](media/pumping.png)
 
 ### Install Grafana and visualize data
 
@@ -68,4 +68,4 @@ with fantastic rendering capabilities of Grafana.
 
 Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location to get more details.
 
-![CPU Hours](docs/media/cpu-hours.png)
+![CPU Hours](media/cpu-hours.png)
