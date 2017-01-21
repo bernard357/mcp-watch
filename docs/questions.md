@@ -22,14 +22,13 @@ And if you know [how to clone a GitHub project](https://help.github.com/articles
 
 The `mcp-pump` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
 
-### What are the systems compatible with MCP Watch?
+### What are systems compatible with MCP Watch?
 
-Currently, MCP Watch can interact with following systems:
-- store all logs in InfluxDB
-- trigger scans of public cloud servers with Qualys
-- dump logs in files
+Currently, MCP Watch can interact with InfluxDB, with Qualys, and with local files. Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
 
-Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
+### Can I check logs from multiple MCP customers?
+
+No you cannot. The Managed Cloud Platform is multi-tenant down to every log record. Each customer has to use his own MCP credentials and, therefore, access only logs for his own organisation. Dimension Data employees use specific MCP environments restricted to developments, demonstrations, temporary integrations or to other internal usage. Generally speaking, you can get assistance from Dimension Data staff to build any analytics or scanning solution, but in the end your own personal MCP credentials will be used.
 
 ## About project deployment
 
@@ -48,11 +47,13 @@ no knowledge of python. Check `config.py` and change parameters based on instruc
 
 ### How to run the pump interactively?
 
-Go to the server over SSH, and launch the server from the command-line:
+Use a terminal window, or go to the server over SSH, and launch execution from the command-line:
 
 ```bash
 $ python pump.py
 ```
+
+Break the infinite pumping loop if needed with the keystroke `Ctrl-X`.
 
 ### How to make the pump more verbose?
 

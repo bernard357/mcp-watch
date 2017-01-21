@@ -130,7 +130,7 @@ it may happen that you just benefit from server starts and reboots triggered by 
 
 ## Check scanning reports
 
-Start the Qualys from your preferred web browser, so that you can monitor the scans performed
+Open the Qualys console from your preferred web browser, so that you can list scans that have been performed
 and their results.
 
 ![Qualys dashboard](media/qualys.dashboard.png)
