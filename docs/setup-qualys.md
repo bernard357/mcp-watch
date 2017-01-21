@@ -115,7 +115,10 @@ $ python pump.py
 At this stage, the pump will detect every minute if some server has been started or rebooted in the cloud.
 If the server has a public ip address, it will be scanned automatically by Qualys.
 
-As a matter of test, you may prepare a bare cloud server directly from CloudControl:
+If multiple persons in your organisation use cloud services from Dimension Data,
+you will benefit from server starts and reboots triggered by others.
+
+You may also want to activate a cloud server by yourself, directly from CloudControl console:
 - select a data centre in one of the regions covered by your MCP Watch instance
 - add a network domain, or pick up an existing one
 - add a VLAN, or use an existing one
@@ -126,15 +129,17 @@ As a matter of test, you may prepare a bare cloud server directly from CloudCont
 When all this has been done, reboot the server and wait for one minute or two.
 MCP Watch should log a new scanning test, and this should be reflected into the Qualys console as well.
 
-Of course, if multiple persons in your organisation use cloud services from Dimension Data,
-it may happen that you just benefit from server starts and reboots triggered by others.
-
 ## Check scanning reports
 
 Open the Qualys console from your preferred web browser, so that you can list scans that have been performed
 and their results.
 
 ![Qualys dashboard](media/qualys.dashboard.png)
+
+Scanning reports may provide very useful recommendations, that deserve the full attention of cyber-security practitioners.
+In most cases, these would be implemented either in custom server images or in the DevOps orchestration toolbox.
+
+![Qualys scan](media/qualys.scan.png)
 
 ## Where to go from here?
 
