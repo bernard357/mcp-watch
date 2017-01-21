@@ -123,7 +123,7 @@ class QualysUpdater(Updater):
                     'ip': item['public_ip'],
                     'scan_title': "Scan of {} at {} for {}".format(
                         item['name'], item['public_ip'], region),
-                    'option_title': 'EBC Feb 2017',
+                    'option_title': self.get('option', 'MCP Watch'),
                     }
 
                 response = requests.post(url=launch_url,
