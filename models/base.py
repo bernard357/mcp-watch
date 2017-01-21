@@ -161,13 +161,13 @@ class Updater(object):
 
         raise NotImplementedError
 
-    def on_new_servers(self, items=[], region='dd-eu'):
+    def on_active_servers(self, items=[], region='dd-eu'):
         """
-        Signals the creation of new servers
+        Signals the deployment, start or reboot of cloud servers
 
 
         :param items: description of new servers
-        :type items: ``list`` of ``list``
+        :type items: ``list`` of ``dict``
 
         :param region: source of the information, e.g., 'dd-eu' or other region
         :type region: ``str``

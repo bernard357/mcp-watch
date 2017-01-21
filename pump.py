@@ -377,8 +377,8 @@ class Pump(object):
         today = (on + timedelta(days=1))
         raw = self.fetch_audit_log(today, region)
         items = self.tail_audit_log(today, region, raw)
-        servers = self.list_new_servers(items)
-        self.on_new_servers(servers, region)
+        servers = self.list_active_servers(items)
+        self.on_active_servers(servers, region)
 
     def fetch_summary_usage(self, on, region='dd-eu'):
         """
@@ -540,9 +540,9 @@ class Pump(object):
 
         return raw
 
-    def list_new_servers(self, raw=[]):
+    def list_active_servers(self, raw=[]):
         """
-        Detects new servers from the audit log
+        Detects active servers from the audit log
 
         :param raw: raw records from the audit log
         :type raw: `list` of `dict`
@@ -651,9 +651,9 @@ class Pump(object):
                 logging.error('Invalid index in provided data')
                 logging.error(items)
 
-    def on_new_servers(self, items, region='dd-eu'):
+    def on_active_servers(self, items, region='dd-eu'):
         """
-        Signals that new servers have been detected
+        Signals that active servers have been detected
 
         :param items: to be recorded in database
         :type items: ``list`` of ``dict``
@@ -669,7 +669,7 @@ class Pump(object):
         for updater in self.updaters:
 
             try:
-                updater.on_new_servers(list(items), region)
+                updater.on_active_servers(list(items), region)
 
             except IndexError:
                 logging.error('Invalid index in provided data')
