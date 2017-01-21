@@ -75,5 +75,3 @@ Here are some ways to contribute:
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
 
 Every [contribution and feedback](docs/contributing.md) matters, so thank you for your efforts.
-
-

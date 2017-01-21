@@ -17,6 +17,7 @@ from datetime import date, datetime, timedelta
 import logging
 from multiprocessing import Process, Queue
 import os
+import re
 import requests
 from six import string_types
 import string
@@ -59,9 +60,12 @@ class Pump(object):
         self._userPassword = None
 
         self.engines = {}
-        self.queues = []
+        self.dqueues = []
+        self.mqueues = []
 
         self.updaters = []
+
+        self.context = {}
 
     def lookup(self, key, default=None):
         """
@@ -207,19 +211,24 @@ class Pump(object):
 
         """
 
-        self.queues = []
+        self.dqueues = []
+        self.mqueues = []
 
         for region in self.get_regions():
 
-            q = Queue()
+            self.context[ region ] = {}
 
-            w = Process(target=self.work, args=(q, region))
+            q = Queue()
+            w = Process(target=self.work_every_day, args=(q, region))
             w.daemon = True
             w.start()
+            self.dqueues.append(q)
 
-            self.queues.append(q)
-
-        return self.queues
+            q = Queue()
+            w = Process(target=self.work_every_minute, args=(q, region))
+            w.daemon = True
+            w.start()
+            self.mqueues.append(q)
 
     def get_date(self, horizon='90d', since=None):
         """
@@ -277,7 +286,7 @@ class Pump(object):
 
         while head < tail:
             logging.info("Pumping data for {}".format(head))
-            for queue in self.queues:
+            for queue in self.dqueues:
                 queue.put(head)
             head += timedelta(days=1)
 
@@ -285,19 +294,51 @@ class Pump(object):
 
             if head < tail:
                 logging.info("Pumping data for {}".format(head))
-                for queue in self.queues:
+                for queue in self.dqueues:
                     queue.put(head)
                 head += timedelta(days=1)
 
             else:
-                logging.debug("Waiting for next day")
+                logging.info("Pumping data for one minute")
+                for queue in self.mqueues:
+                    queue.put(head)
                 time.sleep(60)
                 tail = date.today()
 
-    def work(self, queue, region):
+    def work_every_day(self, queue, region):
+        """
+        Handles data for one day and for one region
+
+        :param queue: the list of days to consider
+        :type queue: `Queue`
+
+        :param region: the region to consider
+        :type region: `str`
+
+        This is ran as an independant process, so it works asynchronously
+        from the rest.
+        """
 
         for cursor in iter(queue.get, 'STOP'):
             self.pull(cursor, region)
+            time.sleep(0.5)
+
+    def work_every_minute(self, queue, region):
+        """
+        Handles data for one minute and for one region
+
+        :param queue: the minute ticks for a given day
+        :type queue: `Queue`
+
+        :param region: the region to consider
+        :type region: `str`
+
+        This is ran as an independant process, so it works asynchronously
+        from the rest.
+        """
+
+        for cursor in iter(queue.get, 'STOP'):
+            self.tick(cursor, region)
             time.sleep(0.5)
 
     def pull(self, on, region='dd-eu'):
@@ -320,6 +361,24 @@ class Pump(object):
 
         items = self.fetch_audit_log(on, region)
         self.update_audit_log(items, region)
+
+    def tick(self, on, region='dd-eu'):
+        """
+        Detects new servers over the past minute for a given region
+
+        :param on: the current day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        today = (on + timedelta(days=1))
+        raw = self.fetch_audit_log(today, region)
+        items = self.tail_audit_log(today, region, raw)
+        servers = self.list_new_servers(items)
+        self.on_new_servers(servers, region)
 
     def fetch_summary_usage(self, on, region='dd-eu'):
         """
@@ -437,6 +496,87 @@ class Pump(object):
 
         return items
 
+    def tail_audit_log(self, on, region='dd-eu', raw=[]):
+        """
+        Considers only new records from the audit log
+
+        :param on: the target day, e.g., date(2016, 11, 30)
+        :type on: ``date``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        :param raw: raw records from the audit log
+        :type raw: `list` of `list`
+
+        """
+
+        cursor = self.context[region].get('cursor')
+        uid = self.context[region].get('uid')
+
+        raw.pop(0)    # remove headers
+
+        if cursor == on and uid is not None:
+
+            index = 0
+            while index < len(raw):
+                if raw[index][0] == uid:
+                    break
+                index += 1
+
+            if index > 0 and index < len(raw):
+                del raw[:index+1]
+            elif len(raw) > 0 and raw[0][0] == uid:
+                del raw[0]
+
+        if len(raw) > 0:
+            self.context[region]['cursor'] = on
+            self.context[region]['uid'] = raw[-1][0]
+            logging.debug("- tail to {} for {}".format(raw[-1][0], region))
+            logging.debug("- {} new items have been found".format(len(raw)))
+
+        else:
+            logging.debug("- nothing new at {}".format(region))
+
+        return raw
+
+    def list_new_servers(self, raw=[]):
+        """
+        Detects new servers from the audit log
+
+        :param raw: raw records from the audit log
+        :type raw: `list` of `dict`
+
+        """
+
+        servers = []
+
+        name_and_id = r'(.*)\[(.*)_(.*)\]'
+
+        for item in raw:
+
+            if item[6] != 'SERVER' or item[10] != 'OK':
+                continue
+
+            if item[8].lower() not in ('deploy server',
+                                       'start server',
+                                       'reboot server'):
+                continue
+
+            matches = re.match(name_and_id, item[7])
+            id = matches.group(3)
+
+            server = {
+                'name': matches.group(1),
+                'id': id,
+                'action': item[8],
+                'stamp': item[1],
+                }
+
+            servers.append(server)
+
+        return servers
+
     def add_updater(self, updater):
         """
         Adds a new database updater
@@ -511,14 +651,38 @@ class Pump(object):
                 logging.error('Invalid index in provided data')
                 logging.error(items)
 
+    def on_new_servers(self, items, region='dd-eu'):
+        """
+        Signals that new servers have been detected
+
+        :param items: to be recorded in database
+        :type items: ``list`` of ``dict``
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
+        """
+
+        for item in items:
+            logging.debug(item)
+
+        for updater in self.updaters:
+
+            try:
+                updater.on_new_servers(list(items), region)
+
+            except IndexError:
+                logging.error('Invalid index in provided data')
+                logging.error(items)
+
 # the program launched from the command line
 #
 if __name__ == "__main__":
 
     # uncomment only one
     #
-    logging.basicConfig(format='%(message)s', level=logging.INFO)
-    #logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+    #logging.basicConfig(format='%(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # create the pump itself
     #
@@ -584,6 +748,8 @@ if __name__ == "__main__":
     except AttributeError:
         logging.debug("No configuration for InfluxDB")
 
+    # sanity check
+    #
     if len(pump.updaters) < 1:
         logger.warning('No updater has been configured, check config.py')
         time.sleep(5)
