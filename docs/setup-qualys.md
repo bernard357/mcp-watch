@@ -107,6 +107,22 @@ $ python pump.py
 
 ![pumping](media/pumping.qualys.png)
 
+At this stage, the pump will detect every minute if some server has been started or rebooted in the cloud.
+If the server has a public ip address, it will be scanned automatically by Qualys.
+
+As a matter of test, you may prepare a bare cloud server directly from CloudControl:
+- select a data centre in one of the regions covered by MCP Watch
+- add a network domain, or pick up an existing one
+- add a VLAn, or use an existing one
+- deploy a server based on an image of your choice
+- add a NAT rule so that the server can be exposed to the internet
+- add some firewall rules so hat the server can be reached on well-known ports, e.g., 22, 80, 443
+
+When all this has been done, reboot the server and wait for one minute or two.
+
+Of course, if multiple persons in your organisation use cloud services from Dimension Data,
+it may happen that you just benefit from server starts and reboots triggered by others.
+
 ### Check scanning reports
 
 Start the Qualys from your preferred web browser, so that you can monitor the scans performed
