@@ -148,3 +148,7 @@ Here are some ways to contribute:
 * [write or fix documentation](docs/contributing.md#how-to-improve-the-documentation)
 * [fix a bug or an issue](docs/contributing.md#how-to-fix-a-bug)
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
+
+Our mid-term objective is that `mcp-pump` can interface with various analytics systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch/Kibana and of MongoDB. If you are interested, please have a look at the [contributing page](contributing.md).
+
+
