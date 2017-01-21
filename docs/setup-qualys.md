@@ -26,7 +26,7 @@ $ cd mcp-pump
 $ pip install -r requirements.txt
 ```
 
-As an overall example, if you use a Ubuntu machine, you could do the following:
+As an overall example, if you use a Ubuntu or macOs machine, you could do the following:
 
 ```bash
 $ sudo apt-get install -y ntp python-pip git apache-libcloud
@@ -44,8 +44,7 @@ All configuration parameters have been centralised in a single file used by `mcp
 $ sudo nano config.py
 ```
 
-Every module has a separate section, so it should be easy to move around
-
+Every module has a separate section, so it should be easy to move around.
 Check the Qualys section and ensure that the module has been activated.
 Also double-check the URL that will be used to interact with the Qualys API endpoint.
 For example if you are located in Europe:
@@ -78,7 +77,7 @@ $ export QUALYS_PASSWORD='76gjTdc86'
 For permanent changes you may put these variables in a file
 that is loaded automatically by the operating system.
 
-If you are running Ubuntu or Mac OSX you could do:
+For example if you are running Ubuntu or macOs you could do:
 
 ```
 $ nano ~/.bash_profile
@@ -88,12 +87,12 @@ and type text like the following:
 
 ```
 # MCP credentials
-$ export MCP_USER='foo.bar'
-$ export MCP_PASSWORD='WhatsUpDoc'
+export MCP_USER='foo.bar'
+export MCP_PASSWORD='WhatsUpDoc'
 
 # Qualys credentials
-$ export QUALYS_LOGIN='who.knows'
-$ export QUALYS_PASSWORD='76gjTdc86'
+export QUALYS_LOGIN='who.knows'
+export QUALYS_PASSWORD='76gjTdc86'
 ```
 
 Save changes with `Ctl-O` and exit the editor with `Ctl-X`.
@@ -113,7 +112,7 @@ If the server has a public ip address, it will be scanned automatically by Qualy
 As a matter of test, you may prepare a bare cloud server directly from CloudControl:
 - select a data centre in one of the regions covered by MCP Watch
 - add a network domain, or pick up an existing one
-- add a VLAn, or use an existing one
+- add a VLAN, or use an existing one
 - deploy a server based on an image of your choice
 - add a NAT rule so that the server can be exposed to the internet
 - add some firewall rules so hat the server can be reached on well-known ports, e.g., 22, 80, 443
@@ -129,3 +128,27 @@ Start the Qualys from your preferred web browser, so that you can monitor the sc
 and their results.
 
 ![Qualys dashboard](media/qualys.dashboard.png)
+
+## Where to go from here?
+
+If something goes wrong for some reason, then [the frequently questions page](questions.md) may help you to troubleshoot the issue and fix it.
+
+Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+
+If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
+other digital practitioners.
+
+On the other hand, if you are happy with this project, we would be happy to receive some [feedback or contribution](docs/contributing.md) in return.
+
+We want you to feel as comfortable as possible with this project, whatever your skills are.
+Here are some ways to contribute:
+
+* [use it for yourself](docs/contributing.md#how-to-use-this-project-for-yourself)
+* [communicate about the project](docs/contributing.md#how-to-communicate-about-the-project)
+* [submit feedback](docs/contributing.md#how-to-submit-feedback)
+* [report a bug](docs/contributing.md#how-to-report-a-bug)
+* [write or fix documentation](docs/contributing.md#how-to-improve-the-documentation)
+* [fix a bug or an issue](docs/contributing.md#how-to-fix-a-bug)
+* [implement some feature](docs/contributing.md#how-to-implement-new-features)
+
+
