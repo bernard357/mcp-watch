@@ -18,14 +18,9 @@ And if you know [how to clone a GitHub project](https://help.github.com/articles
 
 ## About project design
 
-### What is needed to deploy MCP Watch?
+### What is needed to run the pump?
 
 The `mcp-pump` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
-
-The minimum viable solution we could think of is really compact:
-* a computer that runs `mcp-pump`, and that has access to public Internet over HTTPS,
-* MCP credentials so that the pump can fetch data from the Dimension Data API,
-* some instructions and goodwill :-)
 
 ### What are the systems compatible with MCP Watch?
 
