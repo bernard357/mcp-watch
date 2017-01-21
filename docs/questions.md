@@ -4,7 +4,7 @@
 
 ### Where is this project coming from?
 
-The MCP Watch project is an initiative from European teams of Dimension Data. It is supported by experts in data centres and in cloud architecture.
+The MCP Watch project is an initiative from European teams of Dimension Data. It is supported by experts in data centres, in in cloud architecture and of course in cyber-security.
 
 ### Is this software available to anyone?
 
@@ -54,6 +54,21 @@ $ python pump.py
 ```
 
 Break the infinite pumping loop if needed with the keystroke `Ctrl-X`.
+
+### How to retrieve data from the past?
+
+Note: do not do this if the database has been populated, else logs would be recorded multiple times.
+
+If you start with an empty database then indicate how much data you would like to retrieve from the past.
+For example here is the command that will fetch daily logs for the past quarter:
+
+```bash
+$ python pump.py 3m
+```
+
+### Will security scans be launched on servers created days ago?
+
+No. The maximum horizon for scanning is 2 minutes. This has been designed as a dynamic response to infrastructure changes. The Qualys console, or other tools, are more adapted to comprehensive scanning campaigns. You can ask security experts from Dimension Data for any assistance of course.
 
 ### How to make the pump more verbose?
 
