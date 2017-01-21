@@ -353,18 +353,23 @@ class Pump(object):
 
         """
 
-        items = self.fetch_summary_usage(on, region)
-        self.update_summary_usage(items, region)
+        try:
+            items = self.fetch_summary_usage(on, region)
+            self.update_summary_usage(items, region)
 
-        items = self.fetch_detailed_usage(on, region)
-        self.update_detailed_usage(items, region)
+            items = self.fetch_detailed_usage(on, region)
+            self.update_detailed_usage(items, region)
 
-        items = self.fetch_audit_log(on, region)
-        self.update_audit_log(items, region)
+            items = self.fetch_audit_log(on, region)
+            self.update_audit_log(items, region)
+
+        except Exception as feedback:
+            logging.warning('Unable to pull for {}'.format(region))
+            logging.warning(str(feedback))
 
     def tick(self, on, region='dd-eu'):
         """
-        Detects new servers over the past minute for a given region
+        Detects active servers over the past minute for a given region
 
         :param on: the current day, e.g., date(2016, 11, 30)
         :type on: ``date``
@@ -374,11 +379,17 @@ class Pump(object):
 
         """
 
-        today = (on + timedelta(days=1))
-        raw = self.fetch_audit_log(today, region)
-        items = self.tail_audit_log(today, region, raw)
-        servers = self.list_active_servers(items)
-        self.on_active_servers(servers, region)
+        try:
+            today = (on + timedelta(days=1))
+            raw = self.fetch_audit_log(today, region)
+            items = self.tail_audit_log(today, raw, region)
+            servers = self.list_active_servers(items, region)
+            self.on_active_servers(servers, region)
+
+        except Exception as feedback:
+            logging.warning('Unable to tick for {}'.format(region))
+            logging.warning(str(feedback))
+
 
     def fetch_summary_usage(self, on, region='dd-eu'):
         """
@@ -392,7 +403,8 @@ class Pump(object):
 
         """
 
-        logging.info("Fetching summary usage for {} on {}".format(region, on.strftime("%Y-%m-%d")))
+        logging.info("Fetching summary usage for {} on {}".format(
+            region, on.strftime("%Y-%m-%d")))
 
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
@@ -431,7 +443,8 @@ class Pump(object):
 
         """
 
-        logging.info("Fetching detailed usage for {} on {}".format(region, on.strftime("%Y-%m-%d")))
+        logging.info("Fetching detailed usage for {} on {}".format(
+            region, on.strftime("%Y-%m-%d")))
 
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
@@ -470,7 +483,8 @@ class Pump(object):
 
         """
 
-        logging.info("Fetching audit log for {} on {}".format(region, on.strftime("%Y-%m-%d")))
+        logging.info("Fetching audit log for {} on {}".format(
+            region, on.strftime("%Y-%m-%d")))
 
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
@@ -496,18 +510,18 @@ class Pump(object):
 
         return items
 
-    def tail_audit_log(self, on, region='dd-eu', raw=[]):
+    def tail_audit_log(self, on, raw=[], region='dd-eu'):
         """
         Considers only new records from the audit log
 
         :param on: the target day, e.g., date(2016, 11, 30)
         :type on: ``date``
 
-        :param region: the target region, e.g., 'dd-eu'
-        :type region: ``str``
-
         :param raw: raw records from the audit log
         :type raw: `list` of `list`
+
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
 
         """
 
@@ -540,18 +554,23 @@ class Pump(object):
 
         return raw
 
-    def list_active_servers(self, raw=[]):
+    def list_active_servers(self, raw=[], region='dd-eu'):
         """
         Detects active servers from the audit log
 
         :param raw: raw records from the audit log
         :type raw: `list` of `dict`
 
+        :param region: the target region, e.g., 'dd-eu'
+        :type region: ``str``
+
         """
 
         servers = []
 
         name_and_id = r'(.*)\[(.*)_(.*)\]'
+
+        nodes = {}
 
         for item in raw:
 
@@ -564,18 +583,50 @@ class Pump(object):
                 continue
 
             matches = re.match(name_and_id, item[7])
+            name = matches.group(1)
             id = matches.group(3)
 
+            if id not in nodes:
+                node = self.engines[region].ex_get_node_by_id(id=id)
+
+                # hack since the driver does not report public ipv4 accurately
+                if len(node.public_ips) < 1:
+                    domain = self.engines[region].ex_get_network_domain(
+                        node.extra['networkDomainId'])
+                    for rule in self.engines[region].ex_list_nat_rules(domain):
+                        if rule.internal_ip == node.private_ips[0]:
+                            node.public_ips.append(rule.external_ip)
+                            break
+
+                nodes[id] = node
+
+            node = nodes[id]
+
             server = {
-                'name': matches.group(1),
+                'name': name,
                 'id': id,
                 'action': item[8],
                 'stamp': item[1],
+                'private_ip': node.private_ips[0],
+                'public_ip': node.public_ips[0] \
+                    if len(node.public_ips) > 0 else None,
                 }
 
-            servers.append(server)
+            servers.insert(0,server)
 
-        return servers
+        uniques = []
+        processed = []
+        for server in servers:
+            if server['id'] in processed:
+                continue
+            processed.append(server['id'])
+            uniques.append(server)
+            logging.debug("- {}".format(server))
+
+        if len(uniques) < 1:
+            logging.debug("- no new active server at {}".format(region))
+
+        return uniques
 
     def add_updater(self, updater):
         """
@@ -663,17 +714,14 @@ class Pump(object):
 
         """
 
-        for item in items:
-            logging.debug(item)
-
         for updater in self.updaters:
 
             try:
                 updater.on_active_servers(list(items), region)
 
-            except IndexError:
-                logging.error('Invalid index in provided data')
-                logging.error(items)
+            except Exception as feedback:
+                logging.warning('Unable to update on active servers')
+                logging.warning(str(feedback))
 
 # the program launched from the command line
 #
@@ -681,8 +729,8 @@ if __name__ == "__main__":
 
     # uncomment only one
     #
-    #logging.basicConfig(format='%(message)s', level=logging.INFO)
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
+    #logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # create the pump itself
     #
@@ -747,6 +795,23 @@ if __name__ == "__main__":
 
     except AttributeError:
         logging.debug("No configuration for InfluxDB")
+
+    # add a qualys updater as per configuration
+    #
+    try:
+        settings = config.qualys
+
+        logging.debug("Using Qualys service")
+        from models.qualys import QualysUpdater
+        updater = QualysUpdater(settings)
+        if horizon:
+            updater.reset_store()
+        else:
+            updater.use_store()
+        pump.add_updater(updater)
+
+    except AttributeError:
+        logging.debug("No configuration for Qualys")
 
     # sanity check
     #

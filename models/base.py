@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 
 class Updater(object):
     """
@@ -30,19 +32,45 @@ class Updater(object):
 
         self.settings = settings
 
+    def get(self, label, default=None):
+        """
+        Gets some settings
+
+        :param label: name of the settings
+        :type label: `str`
+
+        :param default: default value
+        :type default: `str`
+
+        If the value starts with `$` then a lookup is done from the environment.
+        For example:
+
+            value = updater.get('login', '$QUALYS_LOGIN')
+
+        In that case, if no value can be found for `login`, then the value
+        of the environment variable `QUALYS_LOGIN` is provided instead.
+
+        """
+        value = self.settings.get(label, default)
+
+        if value is not None and str(value)[0] == '$':
+            value = os.environ.get(str(value)[1:])
+
+        return value
+
     def use_store(self):
         """
-        Opens an existing database to update it
+        Opens an existing store before updating it
         """
 
-        raise NotImplementedError
+        pass
 
     def reset_store(self):
         """
-        Creates or resets a database to receive updates
+        Creates or resets a store before updating it
         """
 
-        raise NotImplementedError
+        pass
 
     def update_summary_usage(self, items=[], region='dd-eu'):
         """
@@ -164,7 +192,6 @@ class Updater(object):
     def on_active_servers(self, items=[], region='dd-eu'):
         """
         Signals the deployment, start or reboot of cloud servers
-
 
         :param items: description of new servers
         :type items: ``list`` of ``dict``

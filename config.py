@@ -30,7 +30,7 @@ files = {
     }
 
 #
-# InfluxDB settings -- uncomment and edit if you have an influxdb server
+# InfluxDB settings -- uncomment and edit to store time series
 #
 
 influxdb = {
@@ -39,5 +39,16 @@ influxdb = {
     'user': 'root',
     'password': 'root',
     'database': 'mcp',
+    }
+
+#
+# Qualys settings -- scan cloud servers by setting active to True
+#
+
+qualys = {
+    'active': False,
+    'url': 'https://qualysguard.qualys.eu/',
+    'login': '$QUALYS_LOGIN',
+    'password': '$QUALYS_PASSWORD',
     }
 
