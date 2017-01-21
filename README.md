@@ -34,13 +34,6 @@ The system has a computer that is constantly pumping data from various MCP regio
 
 The `mcp-pump` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
 
-Currently, MCP Watch can interact with following systems:
-- store all logs in InfluxDB
-- trigger scans of public cloud servers with Qualys
-- dump logs in files
-
-Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
-
 For consumption analytics, data is sent to an InfluxDB database. Then dynamic dashboards can be built and accessed from a regular web browser, thanks to Grafana.
 
 ![analytics architecture](docs/media/architecture-influxdb-grafana.png)
@@ -48,6 +41,8 @@ For consumption analytics, data is sent to an InfluxDB database. Then dynamic da
 For automatic security scans, MCP Watch detects servers that have been activated and submits scanning requests to Qualys.
 
 ![scans architecture](docs/media/architecture-qualys.png)
+
+Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
 
 ## What is needed to deploy MCP Watch?
 
