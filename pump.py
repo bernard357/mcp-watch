@@ -20,6 +20,7 @@ import os
 import re
 import requests
 from six import string_types
+import socket
 import string
 import sys
 import time
@@ -55,6 +56,10 @@ class Pump(object):
         """
 
         self.settings = settings
+        if self.settings.get('debug', False):
+            logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+        else:
+            logging.basicConfig(format='%(message)s', level=logging.INFO)
 
         self._userName = None
         self._userPassword = None
@@ -66,31 +71,6 @@ class Pump(object):
         self.updaters = []
 
         self.context = {}
-
-    def lookup(self, key, default=None):
-        """
-        Finds a value from settings
-
-        :param key: the parameter to lookup
-        :type key: ``str``
-
-        :param default: the default value
-        :type default: ``str`` or ``list`` or ``dict``
-
-        """
-
-        settings = self.settings
-        tokens = key.split('.')
-        label = tokens.pop(-1)
-        for token in tokens:
-
-            if token in settings:
-                settings = settings[ token ]
-            else:
-                raise KeyError(
-                    "Missing configuration '{}'".format(token))
-
-        return settings.get(label, default)
 
     def get_user_name(self):
         """
@@ -120,7 +100,7 @@ class Pump(object):
         """
 
         if self._userName is None:
-            self._userName = self.lookup('MCP_USER')
+            self._userName = self.settings.get('MCP_USER')
 
         if self._userName is None:
             self._userName = os.getenv('MCP_USER')
@@ -158,7 +138,7 @@ class Pump(object):
         """
 
         if self._userPassword is None:
-            self._userPassword = self.lookup('MCP_PASSWORD')
+            self._userPassword = self.settings.get('MCP_PASSWORD')
 
         if self._userPassword is None:
             self._userPassword = os.getenv('MCP_PASSWORD')
@@ -182,8 +162,8 @@ class Pump(object):
 
         """
 
-        return self.lookup('regions',
-                           ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
+        return self.settings.get('regions',
+                                 ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
 
     def set_drivers(self):
         """
@@ -363,9 +343,13 @@ class Pump(object):
             items = self.fetch_audit_log(on, region)
             self.update_audit_log(items, region)
 
+        except socket.error as feedback:
+            logging.warning('Cannot access API endpoint for {}'.format(region))
+            logging.warning('- {}'.format(str(feedback)))
+
         except Exception as feedback:
             logging.warning('Unable to pull for {}'.format(region))
-            logging.warning(str(feedback))
+            logging.warning('- {}'.format(str(feedback)))
 
     def tick(self, on, region='dd-eu'):
         """
@@ -385,6 +369,10 @@ class Pump(object):
             items = self.tail_audit_log(today, raw, region)
             servers = self.list_active_servers(items, region)
             self.on_active_servers(servers, region)
+
+        except socket.error as feedback:
+            logging.warning('Cannot access API endpoint for {}'.format(region))
+            logging.warning('- {}'.format(str(feedback)))
 
         except Exception as feedback:
             logging.warning('Unable to tick for {}'.format(region))
@@ -572,48 +560,93 @@ class Pump(object):
 
         nodes = {}
 
+        # process every record from the audit log
+        #
         for item in raw:
 
+            # we are interested only into completed actions on servers
+            #
             if item[6] != 'SERVER' or item[10] != 'OK':
                 continue
 
+            # we are looking for server activations
+            #
             if item[8].lower() not in ('deploy server',
                                        'start server',
                                        'reboot server'):
                 continue
 
+            # extract name and unique id of the activated server
+            #
             matches = re.match(name_and_id, item[7])
             name = matches.group(1)
             id = matches.group(3)
 
-            if id not in nodes:
-                node = self.engines[region].ex_get_node_by_id(id=id)
+            # catch any real-time problem
+            #
+            try:
 
-                # hack since the driver does not report public ipv4 accurately
-                if len(node.public_ips) < 1:
-                    domain = self.engines[region].ex_get_network_domain(
-                        node.extra['networkDomainId'])
-                    for rule in self.engines[region].ex_list_nat_rules(domain):
-                        if rule.internal_ip == node.private_ips[0]:
-                            node.public_ips.append(rule.external_ip)
-                            break
+                # cache in memory the information retrieved from the API
+                #
+                if id not in nodes:
+                    node = self.engines[region].ex_get_node_by_id(id=id)
 
-                nodes[id] = node
+                    # hack - the driver does not report public ipv4 accurately
+                    if len(node.public_ips) < 1:
+                        domain = self.engines[region].ex_get_network_domain(
+                            node.extra['networkDomainId'])
+                        for rule in self.engines[region].ex_list_nat_rules(domain):
+                            if rule.internal_ip == node.private_ips[0]:
+                                node.public_ips.append(rule.external_ip)
+                                break
 
-            node = nodes[id]
+                    nodes[id] = node
 
-            server = {
-                'name': name,
-                'id': id,
-                'action': item[8],
-                'stamp': item[1],
-                'private_ip': node.private_ips[0],
-                'public_ip': node.public_ips[0] \
-                    if len(node.public_ips) > 0 else None,
-                }
+                # retrieve node information
+                #
+                node = nodes[id]
+                if node is None:
+                    continue
 
-            servers.insert(0,server)
+                # build a record for the updaters
+                #
+                server = {
+                    'name': name,
+                    'id': id,
+                    'action': item[8],
+                    'stamp': item[1],
+                    'private_ip': node.private_ips[0],
+                    'public_ip': node.public_ips[0] \
+                        if len(node.public_ips) > 0 else None,
+                    'description': node.extra['description'],
+                    'region': region,
+                    'sourceImageId': node.extra['sourceImageId'],
+                    'networkDomainId': node.extra['networkDomainId'],
+                    'datacenterId': node.extra['datacenterId'],
+                    'deployedTime': node.extra['deployedTime'],
+                    'cpu': node.extra['cpu'].cpu_count,
+                    'memoryMb': node.extra['memoryMb'],
+                    'OS_id': node.extra['OS_id'],
+                    'OS_type': node.extra['OS_type'],
+                    'OS_displayName': node.extra['OS_displayName'],
+                    'disks': [x.size_gb for x in node.extra['disks']],
+                    }
 
+                # extend the raw list of activated servers
+                #
+                servers.insert(0,server)
+
+            # recover safely from any error
+            #
+            except Exception as feedback:
+                logging.debug('Cannot locate {}'.format(name))
+                logging.debug('- {}'.format(str(feedback)))
+                nodes[id] = None
+
+        # keep only the most recent record for each server
+        #
+        if len(servers) > 0:
+            logging.debug('Found active servers for {}'.format(region))
         uniques = []
         processed = []
         for server in servers:
@@ -626,6 +659,8 @@ class Pump(object):
         if len(uniques) < 1:
             logging.debug("- no new active server at {}".format(region))
 
+        # list of activated servers
+        #
         return uniques
 
     def add_updater(self, updater):
@@ -723,14 +758,9 @@ class Pump(object):
                 logging.warning('Unable to update on active servers')
                 logging.warning(str(feedback))
 
-# the program launched from the command line
+# when the program is launched from the command line
 #
 if __name__ == "__main__":
-
-    # uncomment only one
-    #
-    logging.basicConfig(format='%(message)s', level=logging.INFO)
-    #logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # create the pump itself
     #
@@ -743,7 +773,6 @@ if __name__ == "__main__":
 
     # get args
     #
-
     horizon = None
     if len(sys.argv) > 1:
         horizon = sys.argv[1]
@@ -777,7 +806,6 @@ if __name__ == "__main__":
 
     except AttributeError:
         logging.debug("No configuration for file storage")
-
 
     # add an influxdb updater as per configuration
     #

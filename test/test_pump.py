@@ -41,12 +41,8 @@ class PumpTests(unittest.TestCase):
         print('***** Test settings ***')
 
         pump = Pump()
-        self.assertEqual(pump.lookup('unknown'), None)
-        self.assertEqual(pump.lookup('unknown', 'expected'), 'expected')
-        with self.assertRaises(KeyError):
-            pump.lookup('still.unknown')
-        with self.assertRaises(KeyError):
-            pump.lookup('still.very.unknown')
+        self.assertEqual(pump.settings.get('unknown'), None)
+        self.assertEqual(pump.settings.get('unknown', 'expected'), 'expected')
 
         self.assertEqual(pump.get_regions(),
                          ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
@@ -57,15 +53,11 @@ class PumpTests(unittest.TestCase):
             'regions': ['dd-eu', 'dd-na'],
             }
         pump = Pump(settings)
-        self.assertEqual(pump.lookup('MCP_USER'), 'foo.bar')
-        self.assertEqual(pump.lookup('MCP_PASSWORD'), 'WhatsUpDoc')
+        self.assertEqual(pump.settings.get('MCP_USER'), 'foo.bar')
+        self.assertEqual(pump.settings.get('MCP_PASSWORD'), 'WhatsUpDoc')
         self.assertEqual(pump.get_regions(),
                          ['dd-eu', 'dd-na'])
-        self.assertEqual(pump.lookup('unknown'), None)
-        with self.assertRaises(KeyError):
-            pump.lookup('still.unknown')
-        with self.assertRaises(KeyError):
-            pump.lookup('mcp.very.unknown')
+        self.assertEqual(pump.settings.get('unknown'), None)
 
 
     @vcr.use_cassette(

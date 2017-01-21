@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.abspath('..'))
 from models.base import Updater
 from models.files import FilesUpdater
 from models.influx import InfluxdbUpdater
+from models.qualys import QualysUpdater
 
 import config
 
@@ -29,11 +30,8 @@ class ModelsTests(unittest.TestCase):
         updater = Updater({'a': 'b'})
         self.assertEqual(updater.settings['a'], 'b')
 
-        with self.assertRaises(NotImplementedError):
-            updater.use_store()
-
-        with self.assertRaises(NotImplementedError):
-            updater.reset_store()
+        updater.use_store()
+        updater.reset_store()
 
         with self.assertRaises(NotImplementedError):
             updater.update_summary_usage()
@@ -43,6 +41,8 @@ class ModelsTests(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             updater.update_audit_log()
+
+        updater.on_active_servers()
 
     def test_files(self):
 
@@ -90,6 +90,20 @@ class ModelsTests(unittest.TestCase):
             settings = {}
 
         updater = InfluxdbUpdater(settings)
+
+    def test_qualys(self):
+
+        print('***** Test qualys ***')
+
+        updater = QualysUpdater({'a': 'b'})
+        self.assertEqual(updater.settings['a'], 'b')
+
+        try:
+            settings = config.qualys
+        except:
+            settings = {}
+
+        updater = QualysUpdater(settings)
 
 if __name__ == '__main__':
     logging.getLogger('').setLevel(logging.DEBUG)

@@ -36,45 +36,21 @@ class QualysUpdater(Updater):
 
     def update_summary_usage(self, items=[], region='dd-eu'):
         """
-        Updates summary usage records
-
-        :param items: new items to push to the database
-        :type items: ``list`` of ``list``
-
-        :param region: source of the information, e.g., 'dd-eu' or other region
-        :type region: ``str``
-
+        Not applicable to the Qualys updater
         """
 
         pass
 
     def update_detailed_usage(self, items=[], region='dd-eu'):
         """
-        Updates detailed usage records
-
-        :param items: new items to push to the database
-        :type items: ``list`` of ``list``
-
-        :param region: source of the information, e.g., 'dd-eu' or other region
-        :type region: ``str``
-
-        Note that headers can change dynamically, so it is important to map
-        them appropriately.
-
+        Not applicable to the Qualys updater
         """
 
         pass
 
     def update_audit_log(self, items=[], region='dd-eu'):
         """
-        Updates audit log records
-
-        :param items: new items to push to the database
-        :type items: ``list`` of ``list``
-
-        :param region: source of the information, e.g., 'dd-eu' or other region
-        :type region: ``str``
-
+        Not applicable to the Qualys updater
         """
 
         pass
@@ -91,69 +67,90 @@ class QualysUpdater(Updater):
 
         """
 
-        try:
+        # access the qualys API directly
+        #
+        add_url = self.get('url', '$QUALYS_URL')+'api/2.0/fo/asset/ip/'
+        launch_url = self.get('url', '$QUALYS_URL')+'api/2.0/fo/scan/'
+        auth = (self.get('login', '$QUALYS_LOGIN'),
+                self.get('password', '$QUALYS_PASSWORD'))
+        headers = {'X-Requested-With': 'MCP Watch'}
 
-            add_url = self.get('url', '$QUALYS_URL')+'api/2.0/fo/asset/ip/'
-            launch_url = self.get('url', '$QUALYS_URL')+'api/2.0/fo/scan/'
-            auth = (self.get('login', '$QUALYS_LOGIN'),
-                    self.get('password', '$QUALYS_PASSWORD'))
-            headers = {'X-Requested-With': 'mcp-pump'}
+        # number of scans that are triggered
+        #
+        count = 0
 
-            count = 0
+        # look at every server that have been activated
+        #
+        for item in items:
 
-            for item in items:
+            # we need a public IP address to do the scan
+            #
+            if item['public_ip'] is None:
+                continue
 
-                if item['public_ip'] is not None:
+            # trigger a scan
+            #
+            logging.info("- scanning {} at {} for {}".format(
+                item['name'], item['public_ip'], region))
+            count += 1
 
-                    logging.info("- scanning {} at {} for {}".format(
-                        item['name'], item['public_ip'], region))
-                    count += 1
+            # catch any real-time problem
+            #
+            try:
 
-                    payload = {
-                        'action': 'add',
-                        'ips': item['public_ip'],
-                        'enable_vm': 1,
-                        }
+                # add the public IP to the inventory handled by Qualys
+                #
+                payload = {
+                    'action': 'add',
+                    'ips': item['public_ip'],
+                    'enable_vm': 1,
+                    }
 
-                    if self.get('active', True):
-                        response = requests.post(url=add_url,
-                                                 auth=auth,
-                                                 headers=headers,
-                                                 params=payload)
+                if self.get('active', True):
+                    response = requests.post(url=add_url,
+                                             auth=auth,
+                                             headers=headers,
+                                             params=payload)
 
-                        if response.status_code != 200:
-                            logging.info(response.json())
-                            raise Exception("Received error code {}".format(
-                                response.status_code))
+                    if response.status_code != 200:
+                        logging.info(response.json())
+                        raise Exception("Received error code {}".format(
+                            response.status_code))
 
-                    payload = {
-                        'action': 'launch',
-                        'ip': item['public_ip'],
-                        'scan_title': "Scan of {} at {} for {}".format(
-                            item['name'], item['public_ip'], region),
-                        'option_title': 'EBC Feb 2017',
-                        }
+                # launch an actual scan by Qualys
+                #
+                payload = {
+                    'action': 'launch',
+                    'ip': item['public_ip'],
+                    'scan_title': "Scan of {} at {} for {}".format(
+                        item['name'], item['public_ip'], region),
+                    'option_title': 'EBC Feb 2017',
+                    }
 
-                    if self.get('active', True):
-                        response = requests.post(url=launch_url,
-                                                 auth=auth,
-                                                 headers=headers,
-                                                 params=payload)
+                if self.get('active', True):
+                    response = requests.post(url=launch_url,
+                                             auth=auth,
+                                             headers=headers,
+                                             params=payload)
 
-                        if response.status_code != 200:
-                            logging.info(response.json())
-                            raise Exception("Received error code {}".format(
-                                response.status_code))
+                    if response.status_code != 200:
+                        logging.info(response.json())
+                        raise Exception("Received error code {}".format(
+                            response.status_code))
 
-            if count > 0:
-                logging.info("- triggered {} scans from Qualys for {}".format(
-                    count, region))
-            else:
-                logging.info("- nothing to scan from Qualys for {}".format(
-                    region))
+            # recover safely from any error
+            #
+            except Exception as feedback:
+                logging.warning('- unable to use Qualys service')
+                logging.warning(str(feedback))
 
-        except Error as feedback:
-            logging.warning('- unable to use Qualys service')
-            logging.warning(str(feedback))
+        # report on this batch
+        #
+        if count > 0:
+            logging.info("- triggered {} scans from Qualys for {}".format(
+                count, region))
+        else:
+            logging.info("- nothing to scan from Qualys for {}".format(
+                region))
 
 

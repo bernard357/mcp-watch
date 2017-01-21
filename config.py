@@ -5,6 +5,10 @@
 
 pump = {
 
+    # set to True if you need more details on execution
+    #
+    'debug': True,
+
     # regions to be analysed
     #
     # 'regions': ['dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'],
