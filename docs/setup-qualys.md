@@ -1,10 +1,14 @@
 # Setup MCP Watch with Qualys
 
-On this page you will find instructions to install MCP Watch with Qualys.
+On this page you will find instructions to install [MCP Watch](https://github.com/bernard357/mcp-pump) with [Qualys](https://www.qualys.com/).
 
 ![architecture](media/architecture-qualys.png)
 
-Since Qualys is ran as a public cloud service, you need a computer only
+[Qualys](https://www.qualys.com/) is a provider of cloud security, compliance and related services based in Redwood Shores, California. Founded in 1999, Qualys was the first company to deliver vulnerability management solutions as applications through the web using a "software as a service" (SaaS) model. It has added cloud-based compliance and web application security offerings.
+
+Qualys has thousands od customers in more than 100 countries, including a majority of the Forbes Global 100. The company has strategic partnerships with major managed services providers and consulting organizations including BT, Dell SecureWorks, Fujitsu, IBM, NTT, Symantec, Verizon, and Wipro. The company is also a founding member of the Cloud Security Alliance (CSA).
+
+Since Qualys is ran as a public cloud service, for this integration you need a computer only
 to run the `mcp-pump` software itself. This computer should be given access
 to public Internet, so that it can interact with the API endpoints.
 Of course, you also need credentials for cloud services from Dimension Data and from

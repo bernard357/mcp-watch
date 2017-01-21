@@ -1,6 +1,6 @@
 # Setup MCP Watch with InfluxDB and Grafana
 
-On this page you will find instructions to install MCP Watch with InfluxDB and Grafana.
+On this page you will find instructions to install [MCP Watch](https://github.com/bernard357/mcp-pump) with [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/) and [Grafana](http://grafana.org/).
 
 ![architecture](media/architecture-influxdb-grafana.png)
 
