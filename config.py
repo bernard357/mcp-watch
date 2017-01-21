@@ -7,7 +7,7 @@ pump = {
 
     # set to True if you need more details on execution
     #
-    'debug': True,
+    'debug': False,
 
     # regions to be analysed
     #
@@ -24,20 +24,22 @@ pump = {
     }
 
 #
-# file settings -- uncomment and edit to store data in local files
+# file settings -- activate to store data in local files
 #
 
 files = {
+    'active': False,
     'summary_usage': './logs/summary_usage.log',
     'detailed_usage': './logs/detailed_usage.log',
     'audit_log': './logs/audit_log.log',
     }
 
 #
-# InfluxDB settings -- uncomment and edit to store time series
+# InfluxDB settings -- activate to store time series
 #
 
 influxdb = {
+    'active': False,
     'host': 'localhost',
     'port': 8086,
     'user': 'root',
@@ -46,7 +48,7 @@ influxdb = {
     }
 
 #
-# Qualys settings -- scan cloud servers by setting active to True
+# Qualys settings -- activate to scan cloud servers
 #
 
 qualys = {

@@ -1,4 +1,6 @@
 apache-libcloud
+colorlog
 PyYAML
 influxdb
+requests
 vcrpy

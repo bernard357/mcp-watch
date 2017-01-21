@@ -106,16 +106,15 @@ class QualysUpdater(Updater):
                     'enable_vm': 1,
                     }
 
-                if self.get('active', True):
-                    response = requests.post(url=add_url,
-                                             auth=auth,
-                                             headers=headers,
-                                             params=payload)
+                response = requests.post(url=add_url,
+                                         auth=auth,
+                                         headers=headers,
+                                         params=payload)
 
-                    if response.status_code != 200:
-                        logging.info(response.json())
-                        raise Exception("Received error code {}".format(
-                            response.status_code))
+                if response.status_code != 200:
+                    logging.info(response.json())
+                    raise Exception("Received error code {}".format(
+                        response.status_code))
 
                 # launch an actual scan by Qualys
                 #
@@ -127,16 +126,15 @@ class QualysUpdater(Updater):
                     'option_title': 'EBC Feb 2017',
                     }
 
-                if self.get('active', True):
-                    response = requests.post(url=launch_url,
-                                             auth=auth,
-                                             headers=headers,
-                                             params=payload)
+                response = requests.post(url=launch_url,
+                                         auth=auth,
+                                         headers=headers,
+                                         params=payload)
 
-                    if response.status_code != 200:
-                        logging.info(response.json())
-                        raise Exception("Received error code {}".format(
-                            response.status_code))
+                if response.status_code != 200:
+                    logging.info(response.json())
+                    raise Exception("Received error code {}".format(
+                        response.status_code))
 
             # recover safely from any error
             #

@@ -111,7 +111,7 @@ class PumpTests(unittest.TestCase):
         pump = Pump()
         pump.set_drivers()
 
-        influx = InfluxdbUpdater()
+        influx = InfluxdbUpdater({'active': True})
         pump.add_updater(influx)
 
         print('***** Test update summary usage ***')
@@ -141,6 +141,21 @@ class PumpTests(unittest.TestCase):
                 with open(lname, 'r') as handle:
                     items = yaml.load(handle)
                     pump.update_detailed_usage(items)
+
+                    mocked.assert_called_once_with(items, 'dd-eu')
+
+        print('***** Test update audit log ***')
+
+        with mock.patch.object(influx,
+                               'update_audit_log',
+                               return_value=None) as mocked:
+
+            name = 'fixtures/audit-log-dd-eu.yaml'
+            lname = os.path.abspath(os.path.dirname(__file__))+'/'+name
+            if os.path.isfile(lname):
+                with open(lname, 'r') as handle:
+                    items = yaml.load(handle)
+                    pump.update_audit_log(items)
 
                     mocked.assert_called_once_with(items, 'dd-eu')
 

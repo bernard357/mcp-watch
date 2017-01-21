@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import colorlog
 from datetime import date, datetime, timedelta
 import logging
 from multiprocessing import Process, Queue
@@ -686,7 +687,12 @@ class Pump(object):
 
         """
 
+        avoided = 0
         for updater in self.updaters:
+
+            if not updater.get('active', False):
+                avoided += 1
+                continue
 
             try:
                 updater.update_summary_usage(list(items), region)
@@ -694,6 +700,9 @@ class Pump(object):
             except IndexError:
                 logging.error('Invalid index in provided data')
                 logging.error(items)
+
+        if avoided == len(self.updaters) and len(items) > 0:
+            logging.warning('No updater has been activated')
 
     def update_detailed_usage(self, items, region='dd-eu'):
         """
@@ -707,7 +716,12 @@ class Pump(object):
 
         """
 
+        avoided = 0
         for updater in self.updaters:
+
+            if not updater.get('active', False):
+                avoided += 1
+                continue
 
             try:
                 updater.update_detailed_usage(list(items), region)
@@ -715,6 +729,9 @@ class Pump(object):
             except IndexError:
                 logging.error('Invalid index in provided data')
                 logging.error(items)
+
+        if avoided == len(self.updaters) and len(items) > 0:
+            logging.warning('No updater has been activated')
 
     def update_audit_log(self, items, region='dd-eu'):
         """
@@ -728,7 +745,12 @@ class Pump(object):
 
         """
 
+        avoided = 0
         for updater in self.updaters:
+
+            if not updater.get('active', False):
+                avoided += 1
+                continue
 
             try:
                 updater.update_audit_log(list(items), region)
@@ -736,6 +758,9 @@ class Pump(object):
             except IndexError:
                 logging.error('Invalid index in provided data')
                 logging.error(items)
+
+        if avoided == len(self.updaters) and len(items) > 0:
+            logging.warning('No updater has been activated')
 
     def on_active_servers(self, items, region='dd-eu'):
         """
@@ -749,7 +774,12 @@ class Pump(object):
 
         """
 
+        avoided = 0
         for updater in self.updaters:
+
+            if not updater.get('active', False):
+                avoided += 1
+                continue
 
             try:
                 updater.on_active_servers(list(items), region)
@@ -757,6 +787,9 @@ class Pump(object):
             except Exception as feedback:
                 logging.warning('Unable to update on active servers')
                 logging.warning(str(feedback))
+
+        if avoided == len(self.updaters) and len(items) > 0:
+            logging.warning('No updater has been activated')
 
 # when the program is launched from the command line
 #
@@ -770,6 +803,29 @@ if __name__ == "__main__":
         settings = {}
 
     pump = Pump(settings)
+
+    # logging to console
+    #
+    handler = colorlog.StreamHandler()
+    formatter = colorlog.ColoredFormatter(
+        "%(asctime)-2s %(log_color)s%(message)s",
+        datefmt='%H:%M:%S',
+        reset=True,
+        log_colors={
+            'DEBUG':    'cyan',
+            'INFO':     'green',
+            'WARNING':  'yellow',
+            'ERROR':    'red',
+            'CRITICAL': 'red,bg_white',
+        },
+        secondary_log_colors={},
+        style='%'
+    )
+    handler.setFormatter(formatter)
+
+    logging.getLogger('').handlers = []
+    logging.getLogger('').addHandler(handler)
+
 
     # get args
     #
