@@ -61,7 +61,7 @@ For example if you are using a local server with default settings:
 
 ```
 influxdb = {
-    'active': Truee,
+    'active': True,
     'host': 'localhost',
     'port': 8086,
     'user': 'root',
@@ -108,7 +108,7 @@ $ python pump.py
 
 ![pumping](media/pumping.png)
 
-### Install Grafana and visualize data
+## Install Grafana and visualize data
 
 [Grafana](http://grafana.org/) is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
 

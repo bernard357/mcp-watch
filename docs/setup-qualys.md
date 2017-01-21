@@ -7,6 +7,8 @@ On this page you will find instructions to install MCP Watch with Qualys.
 Since Qualys is ran as a public cloud service, you need a computer only
 to run the `mcp-pump` software itself. This computer should be given access
 to public Internet, so that it can interact with the API endpoints.
+Of course, you also need credentials for cloud services from Dimension Data and from
+Qualys.
 
 ## Install the pump
 
