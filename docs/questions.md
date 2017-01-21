@@ -27,7 +27,7 @@ The minimum viable solution we could think of is really compact:
 * MCP credentials so that the pump can fetch data from the Dimension Data API,
 * some instructions and goodwill :-)
 
-## What are the systems compatible with MCP Watch?
+### What are the systems compatible with MCP Watch?
 
 Currently, MCP Watch can interact with following systems:
 - store all logs in InfluxDB
