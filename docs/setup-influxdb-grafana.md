@@ -102,11 +102,21 @@ Then close all terminal windows, and re-open one to ensure that environment vari
 
 ## Start the pump
 
-```
-$ python pump.py
+If you start with an empty database then indicate how much data you would like to retrieve from the past.
+For example here is the command that will fetch daily logs for the past quarter:
+
+```bash
+$ python pump.py 3m
 ```
 
 ![pumping](media/pumping.png)
+
+Note: do not use the same command if the database has been populated, else logs would be recorded multiple times.
+On normal operation, just restart the pump on the current day like this:
+
+```bash
+$ python pump.py
+```
 
 ## Install Grafana and visualize data
 
