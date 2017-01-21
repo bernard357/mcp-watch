@@ -30,6 +30,10 @@ Currently, MCP Watch can interact with InfluxDB, with Qualys, and with local fil
 
 No you cannot. The Managed Cloud Platform is multi-tenant down to every log record. Each customer has to use his own MCP credentials and, therefore, access only logs for his own organisation. Dimension Data employees use specific MCP environments restricted to developments, demonstrations, temporary integrations or to other internal usage. Generally speaking, you can get assistance from Dimension Data staff to build any analytics or scanning solution, but in the end some personal MCP credentials will be used.
 
+### When a server is rebooted, does this trigger a security scan?
+
+Yes. The main reason for rebooting a server is that some core software has been changed or reconfigured. Therefore the need for another security scan, that can test the new setup, and validate it. MCP Watch enables continuous protection that goes beyond initial setup of a server in the cloud.
+
 ### How do this compare to integrated Continuous Delivery?
 
 The infrastructure-as-code pipeline can integrate automated scans. For example, Jenkins can be configured by DevOps teams so that Qualys scans are performed during Continuous Delivery. However, this integrated approach is not adapted to the separation of duties that characterizes strong security. With MCP Watch, security teams only needs a MCP sub-account, and get visibility on changes done to the virtual infrastructure by other teams in the same overall organisation.
