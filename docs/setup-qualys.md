@@ -8,7 +8,7 @@ Since Qualys is ran as a public cloud service, you need a computer only
 to run the `mcp-pump` software itself. This computer should be given access
 to public Internet, so that it can interact with the API endpoints.
 
-### Install the software
+## Install the software
 
 For this installation you need a computer that can run python programs,
 plus some tools to download software from python public repository, and from GitHub.
@@ -36,7 +36,7 @@ $ cd mcp-pump
 $ sudo pip install -r requirements.txt
 ```
 
-### Configure the system
+## Configure the system
 
 All configuration parameters have been centralised in a single file used by `mcp-pump`:
 
@@ -98,7 +98,7 @@ export QUALYS_PASSWORD='76gjTdc86'
 Save changes with `Ctl-O` and exit the editor with `Ctl-X`.
 Then close all terminal windows, and re-open one to ensure that environment variables have been updated.
 
-### Start the pump
+## Start the pump
 
 ```
 $ python pump.py
@@ -122,7 +122,7 @@ When all this has been done, reboot the server and wait for one minute or two.
 Of course, if multiple persons in your organisation use cloud services from Dimension Data,
 it may happen that you just benefit from server starts and reboots triggered by others.
 
-### Check scanning reports
+## Check scanning reports
 
 Start the Qualys from your preferred web browser, so that you can monitor the scans performed
 and their results.
@@ -132,14 +132,11 @@ and their results.
 ## Where to go from here?
 
 If something goes wrong for some reason, then [the frequently questions page](questions.md) may help you to troubleshoot the issue and fix it.
-
 Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
-
 If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
 other digital practitioners.
 
 On the other hand, if you are happy with this project, we would be happy to receive some [feedback or contribution](docs/contributing.md) in return.
-
 We want you to feel as comfortable as possible with this project, whatever your skills are.
 Here are some ways to contribute:
 
