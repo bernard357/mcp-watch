@@ -32,14 +32,6 @@ The MCP Watch project is ruled by the [Apache License](https://www.apache.org/li
 
 The system has a computer that is constantly pumping data from various MCP regions, and feeding other systems.
 
-For consumption analytics, data is sent to an InfluxDB database. Then dynamic dashboards can be build and accessed from a regular web browser, thanks to Grafana.
-
-![analytics architecture](docs/media/architecture-influxdb-grafana.png)
-
-For automatic security scans, MCP Watch detects servers that have been activated and submits scanning requests to Qualys.
-
-![scans architecture](docs/media/architecture-qualys.png)
-
 The `mcp-pump` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
 
 Currently, MCP Watch can interact with following systems:
@@ -47,12 +39,20 @@ Currently, MCP Watch can interact with following systems:
 - trigger scans of public cloud servers with Qualys
 - dump logs in files
 
-Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, please have a look at the [contributing page](contributing.md).
+Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
+
+For consumption analytics, data is sent to an InfluxDB database. Then dynamic dashboards can be built and accessed from a regular web browser, thanks to Grafana.
+
+![analytics architecture](docs/media/architecture-influxdb-grafana.png)
+
+For automatic security scans, MCP Watch detects servers that have been activated and submits scanning requests to Qualys.
+
+![scans architecture](docs/media/architecture-qualys.png)
 
 ## What is needed to deploy MCP Watch?
 
 The minimum viable solution we could think of is really compact:
-* a computer that runs `mcp-pump`, InfluxDB and Grafana, and that has access to public Internet over HTTPS,
+* a computer that runs `mcp-pump`, and that has access to public Internet over HTTPS,
 * MCP credentials so that the pump can fetch data from the Dimension Data API,
 * some instructions and goodwill :-)
 

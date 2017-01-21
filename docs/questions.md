@@ -20,21 +20,62 @@ And if you know [how to clone a GitHub project](https://help.github.com/articles
 
 ### What is needed to deploy MCP Watch?
 
+The `mcp-pump` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
+
 The minimum viable solution we could think of is really compact:
-* a computer that runs `mcp-pump`, InfluxDB and Grafana, and that has access to public Internet over HTTPS,
+* a computer that runs `mcp-pump`, and that has access to public Internet over HTTPS,
 * MCP credentials so that the pump can fetch data from the Dimension Data API,
 * some instructions and goodwill :-)
 
-Check [detailed instructions](setup-influxdb-grafana.md) for step-by-step deployment of a running installation.
+## What are the systems compatible with MCP Watch?
+
+Currently, MCP Watch can interact with following systems:
+- store all logs in InfluxDB
+- trigger scans of public cloud servers with Qualys
+- dump logs in files
+
+Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
 
 ## About project deployment
 
-### How to install the full system?
+### How to install MCP Watch with InfluxDB and Grafana?
 
 Check [detailed instructions](setup-influxdb-grafana.md) for step-by-step deployment of a running installation.
+
+### How to install MCP Watch with Qualys?
+
+Check [detailed instructions](setup-qualys.md) for step-by-step deployment of a running installation.
 
 ### Is it required to know python?
 
 The `mcp-pump` software uses a separate configuration files that can be modified at will, and that requires almost
 no knowledge of python. Check `config.py` and change parameters based on instructions there.
+
+### How to run the pump interactively?
+
+Go to the server over SSH, and launch the server from the command-line:
+
+```bash
+$ python pump.py
+```
+
+### How to make the pump more verbose?
+
+Edit `config.py` and activate the debug mode.
+
+```
+pump = {
+    'debug': True,
+    }
+```
+
+Then restart the pump and be prepared for a significant flow of data on screen.
+
+### My problem has not been addressed here. Where to find more support?
+
+Please [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+
+If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
+other digital practitioners.
+
 
