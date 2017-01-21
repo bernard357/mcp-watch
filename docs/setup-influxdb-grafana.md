@@ -12,7 +12,7 @@ Everything you need can be installed on one single computer, or on multiple:
 The computer that will run `mcp-pump` should be given access to public Internet, so that it
 can interact with the API endpoints and fetch data from them.
 
-### Install InfluxDB as data store
+## Install InfluxDB as data store
 
 [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/) is an open source database written in Go specifically to handle time series data with high availability and high performance requirements. InfluxDB installs in minutes without external dependencies, yet is flexible and scalable enough for complex deployments.
 
@@ -26,7 +26,51 @@ $ sudo apt-get update && sudo apt-get install influxdb
 $ sudo service influxdb start
 ```
 
-### Install and start the pump
+## Install the pump
+
+For this installation you need a computer that can run python programs,
+plus some tools to download software from python public repository, and from GitHub.
+
+Pre-requisites:
+- [python 2.7 and pip](https://www.python.org/downloads/)
+- [git](https://git-scm.com/downloads)
+- [Apache Libcloud](https://libcloud.readthedocs.io/en/latest/getting_started.html)
+
+As an overall example, if you use a Ubuntu or macOs machine, you could do the following:
+
+```bash
+$ sudo apt-get install -y ntp python-pip git apache-libcloud
+$ cd ~
+$ git clone https://github.com/bernard357/mcp-pump.git
+$ cd mcp-pump
+$ pip install -r requirements.txt
+```
+
+
+## Configure the pump
+
+All configuration parameters have been centralised in a single file used by `mcp-pump`:
+
+```
+$ sudo nano config.py
+```
+
+Every module has a separate section, so it should be easy to move around.
+Check the InfluxDB section and ensure that the module has been activated.
+For example if you are using a local server with default settings:
+
+```
+influxdb = {
+    'active': Truee,
+    'host': 'localhost',
+    'port': 8086,
+    'user': 'root',
+    'password': 'root',
+    'database': 'mcp',
+    }
+```
+
+Save changes with `Ctl-O` and exit the editor with `Ctl-X`.
 
 Put MCP credentials in environment variables:
 
@@ -35,14 +79,30 @@ $ export MCP_USER='foo.bar'
 $ export MCP_PASSWORD='WhatsUpDoc'
 ```
 
-You will need git and [Apache Libcloud installed](https://libcloud.readthedocs.io/en/latest/getting_started.html) as pre-requisites.
+For permanent changes you may put these variables in a file
+that is loaded automatically by the operating system.
 
-Download the `mcp-pump` code from GitHub and run it:
+For example if you are running Ubuntu or macOs you could do:
 
 ```
-$ git clone https://github.com/bernard357/mcp-pump.git
-$ cd mcp-pump
-$ pip install -r requirements.txt
+$ nano ~/.bash_profile
+```
+
+and type text like the following:
+
+```
+# MCP credentials
+export MCP_USER='foo.bar'
+export MCP_PASSWORD='WhatsUpDoc'
+
+```
+
+Save changes with `Ctl-O` and exit the editor with `Ctl-X`.
+Then close all terminal windows, and re-open one to ensure that environment variables have been updated.
+
+## Start the pump
+
+```
 $ python pump.py
 ```
 
@@ -69,3 +129,22 @@ with fantastic rendering capabilities of Grafana.
 Below is an example settings for the widget that reports on CPU hours. Each region has a different line in the diagram, yet this could be segmented by location to get more details.
 
 ![CPU Hours](media/cpu-hours.png)
+
+## Where to go from here?
+
+If something goes wrong for some reason, then [the frequently questions page](questions.md) may help you to troubleshoot the issue and fix it.
+Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
+other digital practitioners.
+
+On the other hand, if you are happy with this project, we would be happy to receive some [feedback or contribution](docs/contributing.md) in return.
+We want you to feel as comfortable as possible with this project, whatever your skills are.
+Here are some ways to contribute:
+
+* [use it for yourself](docs/contributing.md#how-to-use-this-project-for-yourself)
+* [communicate about the project](docs/contributing.md#how-to-communicate-about-the-project)
+* [submit feedback](docs/contributing.md#how-to-submit-feedback)
+* [report a bug](docs/contributing.md#how-to-report-a-bug)
+* [write or fix documentation](docs/contributing.md#how-to-improve-the-documentation)
+* [fix a bug or an issue](docs/contributing.md#how-to-fix-a-bug)
+* [implement some feature](docs/contributing.md#how-to-implement-new-features)

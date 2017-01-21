@@ -8,7 +8,7 @@ Since Qualys is ran as a public cloud service, you need a computer only
 to run the `mcp-pump` software itself. This computer should be given access
 to public Internet, so that it can interact with the API endpoints.
 
-## Install the software
+## Install the pump
 
 For this installation you need a computer that can run python programs,
 plus some tools to download software from python public repository, and from GitHub.
@@ -30,13 +30,13 @@ As an overall example, if you use a Ubuntu or macOs machine, you could do the fo
 
 ```bash
 $ sudo apt-get install -y ntp python-pip git apache-libcloud
-$ cd /home/ubuntu/
+$ cd ~
 $ git clone https://github.com/bernard357/mcp-pump.git
 $ cd mcp-pump
 $ sudo pip install -r requirements.txt
 ```
 
-## Configure the system
+## Configure the pump
 
 All configuration parameters have been centralised in a single file used by `mcp-pump`:
 
@@ -147,5 +147,3 @@ Here are some ways to contribute:
 * [write or fix documentation](docs/contributing.md#how-to-improve-the-documentation)
 * [fix a bug or an issue](docs/contributing.md#how-to-fix-a-bug)
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
-
-
