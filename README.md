@@ -77,3 +77,9 @@ Here are some ways to contribute:
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
 
 Every [contribution and feedback](docs/contributing.md) matters, so thank you for your efforts.
+
+Initial contributors to the MCP Watch project include:
+- [Bernard Paques](https://twitter.com/bernard357)
+- [Tom Gilis](https://twitter.com/tgilis)
+- [Joan Ballaud](https://www.linkedin.com/in/joan-ballaud-a00b344)
+
