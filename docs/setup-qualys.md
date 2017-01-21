@@ -35,7 +35,7 @@ $ pip install -r requirements.txt
 As an overall example, if you use a Ubuntu or macOs machine, you could do the following:
 
 ```bash
-$ sudo apt-get install -y ntp python-pip git apache-libcloud
+$ sudo apt-get install -y ntp python-pip git
 $ cd ~
 $ git clone https://github.com/bernard357/mcp-pump.git
 $ cd mcp-pump
