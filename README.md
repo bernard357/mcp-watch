@@ -55,15 +55,7 @@ So, depending of your goal, here are step-by-step instructions that have been pr
 - [Setup MCP Watch with InfluxDB and Grafana](docs/setup-influxdb-grafana.md)
 - [Setup MCP Watch with Qualys](docs/setup-qualys.md)
 
-## Where to find additional assistance?
-
-Well, maybe you would like to check [Frequently asked questions](docs/questions.md) and related responses.
-Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
-
-If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
-other digital practitioners.
-
-## How would you like to contribute?
+## How would you like to be involved?
 
 We want you to feel as comfortable as possible with this project, whatever your skills are.
 Here are some ways to contribute:
@@ -77,9 +69,17 @@ Here are some ways to contribute:
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
 
 Every [contribution and feedback](docs/contributing.md) matters, so thank you for your efforts.
-
 Initial contributors to the MCP Watch project include:
 - [Bernard Paques](https://twitter.com/bernard357)
 - [Tom Gilis](https://twitter.com/tgilis)
 - [Joan Ballaud](https://www.linkedin.com/in/joan-ballaud-a00b344)
+
+## Questions, support?
+
+Well, first of all please check [Frequently asked questions](docs/questions.md) and related responses. A lot of information has been captured there.
+
+Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+
+If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
+other digital practitioners.
 

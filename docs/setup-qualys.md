@@ -143,7 +143,7 @@ In most cases, these would be implemented either in custom server images or in t
 
 ## Where to go from here?
 
-If something goes wrong for some reason, then [the frequently questions page](questions.md) may help you to troubleshoot the issue and fix it.
+Visit [the frequently asked questions page](questions.md) since it contains a lot of information that may prove useful.
 Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
 If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
 other digital practitioners.
