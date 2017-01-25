@@ -90,6 +90,27 @@ pump = {
 
 Then restart the pump and be prepared for a significant flow of data on screen.
 
+### How to check data flow in InfluxDB?
+
+The creation of the database and the push of data is performed automatically by `mcp-pump`. Data records can be checked with teh `influx` client software like this:
+
+```
+influx
+```
+
+Once you have the prompt of influx you can type following commands:
+
+```
+> show databases
+> use mcp
+> show series
+> select * from "Summary usage"
+> select * from "Audit log"
+> exit
+```
+
+If there is no database, no series, or no data in the two series mentioned, then you know for sure that there is something broken between `mcp-pump` and InfluxDB. Have you activated the debug mode and checked messages from it?
+
 ### My problem has not been addressed here. Where to find more support?
 
 Please [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
