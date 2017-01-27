@@ -235,9 +235,12 @@ class Pump(object):
 
         elif horizon.endswith('m'):
             months = int(horizon.strip('m'))
-            years = int(months/12)
-            months = months%12
-            target = date(since.year - years, since.month - months, 1)
+            year = since.year - int(months/12)
+            month = since.month - months%12
+            while month < 1:
+                year -= 1
+                month += 12
+            target = date(year, month, 1)
 
         elif horizon.endswith('d'):
             days = int(horizon.strip('d'))
