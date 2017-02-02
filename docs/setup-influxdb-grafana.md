@@ -33,9 +33,10 @@ plus some tools to download software from python public repository, and from Git
 
 Pre-requisites:
 - [libyaml-dev](http://packages.ubuntu.com/search?keywords=libyaml-dev) 
-- [python-dev]
-- [pyYAML]
+- [python-dev](http://packages.ubuntu.com/search?keywords=python-dev)
 - [python 2.7 and pip](https://www.python.org/downloads/)
+- [pyYAML](http://pyyaml.org/)
+- [backports.ssl_match_hostname] (https://pypi.python.org/pypi/backports.ssl_match_hostname)
 - [git](https://git-scm.com/downloads)
 - [Apache Libcloud](https://libcloud.readthedocs.io/en/latest/getting_started.html)
 
