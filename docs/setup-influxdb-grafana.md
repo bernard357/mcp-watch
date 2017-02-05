@@ -32,7 +32,11 @@ For this installation you need a computer that can run python programs,
 plus some tools to download software from python public repository, and from GitHub.
 
 Pre-requisites:
+- [libyaml-dev](http://packages.ubuntu.com/search?keywords=libyaml-dev) 
+- [python-dev](http://packages.ubuntu.com/search?keywords=python-dev)
 - [python 2.7 and pip](https://www.python.org/downloads/)
+- [pyYAML](http://pyyaml.org/)
+- [backports.ssl_match_hostname] (https://pypi.python.org/pypi/backports.ssl_match_hostname)
 - [git](https://git-scm.com/downloads)
 - [Apache Libcloud](https://libcloud.readthedocs.io/en/latest/getting_started.html)
 
@@ -40,6 +44,11 @@ As an overall example, if you use a Ubuntu or macOs machine, you could do the fo
 
 ```bash
 $ sudo apt-get install -y ntp python-pip git
+$ sudo apt-get install libyaml-dev
+$ sudo apt-get install python-dev
+$ sudo pip install --user PyYAML
+$ sudo pip install backports.ssl_match_hostname
+$ sudo pip install apache-libcloud
 $ cd ~
 $ git clone https://github.com/bernard357/mcp-pump.git
 $ cd mcp-pump
