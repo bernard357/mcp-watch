@@ -1,6 +1,6 @@
 # Setup MCP Watch with Qualys
 
-On this page you will find instructions to install [MCP Watch](https://github.com/bernard357/mcp-pump) with [Qualys](https://www.qualys.com/).
+On this page you will find instructions to install [MCP Watch](https://github.com/bernard357/mcp-watch) with [Qualys](https://www.qualys.com/).
 
 ![architecture](media/architecture-qualys.png)
 
@@ -9,7 +9,7 @@ On this page you will find instructions to install [MCP Watch](https://github.co
 Qualys has thousands od customers in more than 100 countries, including a majority of the Forbes Global 100. The company has strategic partnerships with major managed services providers and consulting organizations including BT, Dell SecureWorks, Fujitsu, IBM, NTT, Symantec, Verizon, and Wipro. The company is also a founding member of the Cloud Security Alliance (CSA).
 
 Since Qualys is ran as a public cloud service, for this integration you need a computer only
-to run the `mcp-pump` software itself. This computer should be given access
+to run the `mcp-watch` software itself. This computer should be given access
 to public Internet, so that it can interact with the API endpoints.
 Of course, you also need credentials for cloud services from Dimension Data and from
 Qualys.
@@ -24,11 +24,11 @@ Pre-requisites:
 - [git](https://git-scm.com/downloads)
 - [Apache Libcloud](https://libcloud.readthedocs.io/en/latest/getting_started.html)
 
-Download the `mcp-pump` code directly from GitHub:
+Download the `mcp-watch` code directly from GitHub:
 
 ```
-$ git clone https://github.com/bernard357/mcp-pump.git
-$ cd mcp-pump
+$ git clone https://github.com/bernard357/mcp-watch.git
+$ cd mcp-watch
 $ pip install -r requirements.txt
 ```
 
@@ -37,14 +37,14 @@ As an overall example, if you use a Ubuntu or macOs machine, you could do the fo
 ```bash
 $ sudo apt-get install -y ntp python-pip git
 $ cd ~
-$ git clone https://github.com/bernard357/mcp-pump.git
-$ cd mcp-pump
+$ git clone https://github.com/bernard357/mcp-watch.git
+$ cd mcp-watch
 $ sudo pip install -r requirements.txt
 ```
 
 ## Configure the pump
 
-All configuration parameters have been centralised in a single file used by `mcp-pump`:
+All configuration parameters have been centralised in a single file used by `mcp-watch`:
 
 ```
 $ sudo nano config.py
@@ -144,7 +144,7 @@ In most cases, these would be implemented either in custom server images or in t
 ## Where to go from here?
 
 Visit [the frequently asked questions page](questions.md) since it contains a lot of information that may prove useful.
-Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-watch/issues) and get support from the project team.
 If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
 other digital practitioners.
 
@@ -160,5 +160,5 @@ Here are some ways to contribute:
 * [fix a bug or an issue](docs/contributing.md#how-to-fix-a-bug)
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
 
-Our mid-term objective is that `mcp-pump` can interface with various security systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch and of Splunk. If you are interested, please have a look at the [contributing page](contributing.md).
+Our mid-term objective is that `mcp-watch` can interface with various security systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch and of Splunk. If you are interested, please have a look at the [contributing page](contributing.md).
 

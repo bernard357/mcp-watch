@@ -20,11 +20,11 @@ And if you know [how to clone a GitHub project](https://help.github.com/articles
 
 ### What is needed to run the pump?
 
-The `mcp-pump` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
+The `mcp-watch` piece of software is written in python and relies on the Apache Libcloud for interactions with the API from Dimension Data. Any computer that can run the python interpreter and that can connect to the public Internet is eligible for the MCP Watch. This can be your own workstation for a quick test or for a demo. Or it can be a small computer like a Raspberry Pi. Or any general-purpose computer, really. And, of course, it can be a virtual server running in the cloud.
 
 ### What systems are compatible with MCP Watch?
 
-Currently, MCP Watch can interact with InfluxDB, with Qualys, and with local files. Our mid-term objective is that `mcp-pump` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
+Currently, MCP Watch can interact with InfluxDB, with Qualys, and with local files. Our mid-term objective is that `mcp-watch` can interface with multiple systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch, MongoDB, Cisco Spark and of Splunk. If you are interested, or have other ideas, please have a look at the [contributing page](contributing.md).
 
 ### Can I check logs from multiple MCP customers?
 
@@ -50,7 +50,7 @@ Check [detailed instructions](setup-qualys.md) for step-by-step deployment of a 
 
 ### Is it required to know python?
 
-No. The `mcp-pump` software uses a separate configuration files that can be modified at will, and that requires almost
+No. The `mcp-watch` software uses a separate configuration files that can be modified at will, and that requires almost
 no knowledge of python. Check `config.py` and change parameters based on instructions there.
 
 ### How to run the pump interactively?
@@ -92,7 +92,7 @@ Then restart the pump and be prepared for a significant flow of data on screen.
 
 ### How to check data flow in InfluxDB?
 
-The creation of the database and the push of data is performed automatically by `mcp-pump`. Data records can be checked with teh `influx` client software like this:
+The creation of the database and the push of data is performed automatically by `mcp-watch`. Data records can be checked with teh `influx` client software like this:
 
 ```
 influx
@@ -109,11 +109,11 @@ Once you have the prompt of influx you can type following commands:
 > exit
 ```
 
-If there is no database, no series, or no data in the two series mentioned, then you know for sure that there is something broken between `mcp-pump` and InfluxDB. Have you activated the debug mode and checked messages from it?
+If there is no database, no series, or no data in the two series mentioned, then you know for sure that there is something broken between `mcp-watch` and InfluxDB. Have you activated the debug mode and checked messages from it?
 
 ### My problem has not been addressed here. Where to find more support?
 
-Please [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+Please [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-watch/issues) and get support from the project team.
 
 If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
 other digital practitioners.

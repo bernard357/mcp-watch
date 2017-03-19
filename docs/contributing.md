@@ -39,7 +39,7 @@ At first sight it may seems strange to mix feedback with issues. In practice thi
 is working smoothly because there is a single place for asynchronous interactions
 across the project community.
 
-[Provide feedback right now](https://github.com/bernard357/mcp-pump/issues)
+[Provide feedback right now](https://github.com/bernard357/mcp-watch/issues)
 
 Your use case may be new, and therefore interesting to us. Or you may raise the hand
 and explain your own user experience, bad or good. Ask a question if something
@@ -55,7 +55,7 @@ is not clear. If you are proposing a feature:
 Have you identified some bug? This is great! There is a single place for
 all bugs related to this project:
 
-[Project bugs and issues](https://github.com/bernard357/mcp-pump/issues)
+[Project bugs and issues](https://github.com/bernard357/mcp-watch/issues)
 
 This is where issues are documented and discussed before they are fixed by the
 community. Each time you report a bug, please include:
@@ -70,14 +70,14 @@ The project could always use more documentation, for sure. Currently pages
 are stored as Markdown documents in the `docs` directory. Images are put
 in `docs\media`.
 
-[Project primary documentation](https://github.com/bernard357/mcp-pump/tree/master/docs)
+[Project primary documentation](https://github.com/bernard357/mcp-watch/tree/master/docs)
 
 So if you already used a text editor, and made some screenshots, please consider
 to improve project documentation.
 
 For example, here are the typical steps required for the addition of a new tutorial page:
 
-1. From [the project page at GitHub](https://github.com/bernard357/mcp-pump), you can [fork it](https://help.github.com/articles/fork-a-repo/) so that you have your own project space.
+1. From [the project page at GitHub](https://github.com/bernard357/mcp-watch), you can [fork it](https://help.github.com/articles/fork-a-repo/) so that you have your own project space.
    If you do not have a GitHub account, please create one. This is provided for free, and will
    make you a proud member of a global community that matters.
 
@@ -101,7 +101,7 @@ For example, here are the typical steps required for the addition of a new tutor
    with [a Pull Request](https://help.github.com/articles/about-pull-requests/).
    Again, in GitHub Desktop this is a simple click on a button.
 
-8. All [Pull Requests are listed from the original project page](https://github.com/bernard357/mcp-pump/pulls)
+8. All [Pull Requests are listed from the original project page](https://github.com/bernard357/mcp-watch/pulls)
    so you can monitor what the community is doing with them, and jump in anytime.
 
 9. When your Pull Request is integrated, then your contribution is
@@ -110,10 +110,10 @@ For example, here are the typical steps required for the addition of a new tutor
 
 ## How to fix a bug?
 
-Look through [the GitHub issues](https://github.com/bernard357/mcp-pump/issues) for bugs.
+Look through [the GitHub issues](https://github.com/bernard357/mcp-watch/issues) for bugs.
 Anything tagged with "bug" is open to whoever wants to implement it.
 
 ## How to implement new features?
 
-Look through [the GitHub issues](https://github.com/bernard357/mcp-pump/issues) for features.
+Look through [the GitHub issues](https://github.com/bernard357/mcp-watch/issues) for features.
 Anything tagged with "enhancement" is open to whoever wants to implement it.

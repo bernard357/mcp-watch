@@ -1,15 +1,15 @@
 # Setup MCP Watch with InfluxDB and Grafana
 
-On this page you will find instructions to install [MCP Watch](https://github.com/bernard357/mcp-pump) with [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/) and [Grafana](http://grafana.org/).
+On this page you will find instructions to install [MCP Watch](https://github.com/bernard357/mcp-watch) with [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/) and [Grafana](http://grafana.org/).
 
 ![architecture](media/architecture-influxdb-grafana.png)
 
 Everything you need can be installed on one single computer, or on multiple:
-- the `mcp-pump` software
+- the `mcp-watch` software
 - the InfluxDB database
 - the Grafana web dashboard
 
-The computer that will run `mcp-pump` should be given access to public Internet, so that it
+The computer that will run `mcp-watch` should be given access to public Internet, so that it
 can interact with the API endpoints and fetch data from them.
 
 ## Install InfluxDB as data store
@@ -32,7 +32,7 @@ For this installation you need a computer that can run python programs,
 plus some tools to download software from python public repository, and from GitHub.
 
 Pre-requisites:
-- [libyaml-dev](http://packages.ubuntu.com/search?keywords=libyaml-dev) 
+- [libyaml-dev](http://packages.ubuntu.com/search?keywords=libyaml-dev)
 - [python-dev](http://packages.ubuntu.com/search?keywords=python-dev)
 - [python 2.7 and pip](https://www.python.org/downloads/)
 - [pyYAML](http://pyyaml.org/)
@@ -50,15 +50,15 @@ $ sudo pip install --user PyYAML
 $ sudo pip install backports.ssl_match_hostname
 $ sudo pip install apache-libcloud
 $ cd ~
-$ git clone https://github.com/bernard357/mcp-pump.git
-$ cd mcp-pump
+$ git clone https://github.com/bernard357/mcp-watch.git
+$ cd mcp-watch
 $ pip install -r requirements.txt
 ```
 
 
 ## Configure the pump
 
-All configuration parameters have been centralised in a single file used by `mcp-pump`:
+All configuration parameters have been centralised in a single file used by `mcp-watch`:
 
 ```
 $ sudo nano config.py
@@ -152,7 +152,7 @@ Below is an example settings for the widget that reports on CPU hours. Each regi
 ## Where to go from here?
 
 Visit [the frequently asked questions page](questions.md) since it contains a lot of information that may prove useful.
-Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-pump/issues) and get support from the project team.
+Then you can [raise an issue at the GitHub project page](https://github.com/bernard357/mcp-watch/issues) and get support from the project team.
 If you are a Dimension Data employee, reach out the Green Force group at Yammer and engage with
 other digital practitioners.
 
@@ -168,6 +168,6 @@ Here are some ways to contribute:
 * [fix a bug or an issue](docs/contributing.md#how-to-fix-a-bug)
 * [implement some feature](docs/contributing.md#how-to-implement-new-features)
 
-Our mid-term objective is that `mcp-pump` can interface with various analytics systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch/Kibana and of MongoDB. If you are interested, please have a look at the [contributing page](contributing.md).
+Our mid-term objective is that `mcp-watch` can interface with various analytics systems. The architecture is open, so that it can be extended quite easily. We are looking for the addition of Elasticsearch/Kibana and of MongoDB. If you are interested, please have a look at the [contributing page](contributing.md).
 
 
