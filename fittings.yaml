@@ -62,7 +62,7 @@ blueprints:
                       export MCP_PASSWORD
 
                       script
-                          cd /home/ubuntu/mcp-pump
+                          cd /home/ubuntu/mcp-watch
                           python pump.py
                       end script
 
@@ -84,11 +84,6 @@ blueprints:
                      print "{{ node.private }}    {{ node.name }}"
                     }
 
-                - path: /root/settings.sed
-                  content: |
-                    #!/usr/bin/sed
-                    /#key:/s/^.*$/    key: {{ secret.key }} /
-
               runcmd:
 
                 - echo "===== Handling ubuntu identity"
@@ -106,7 +101,6 @@ blueprints:
                 - git clone https://github.com/bernard357/mcp-watch.git
                 - cd mcp-watch/
                 - pip install -r requirements.txt
-                - sed -i -f /root/settings.sed settings.yaml
 
                 - echo "===== Starting MCP pump as a daemon service"
                 - chown ubuntu:ubuntu -R /home/ubuntu
