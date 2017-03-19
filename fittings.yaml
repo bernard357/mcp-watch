@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Monitor consumption at the MCP with InfluxDB and Grafana"
+  - "MCP Watch - Monitor logs from Managed Cloud Platforms"
 
 ---
 
@@ -103,8 +103,8 @@ blueprints:
 
                 - echo "===== Installing the code"
                 - cd /home/ubuntu/
-                - git clone https://github.com/bernard357/mcp-pump.git
-                - cd mcp-pump/
+                - git clone https://github.com/bernard357/mcp-watch.git
+                - cd mcp-watch/
                 - pip install -r requirements.txt
                 - sed -i -f /root/settings.sed settings.yaml
 
