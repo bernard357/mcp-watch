@@ -4,3 +4,5 @@ PyYAML
 influxdb
 requests
 vcrpy
+backports.ssl_match_hostname
+

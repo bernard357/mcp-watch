@@ -51,7 +51,7 @@ $ sudo nano config.py
 ```
 
 Every module has a separate section, so it should be easy to move around.
-Check the Qualys section and ensure that the module has been activated.
+Check the Qualys section and change `False` to `True` on the activation line.
 Also double-check the URL that will be used to interact with the Qualys API endpoint.
 For example if you are located in Europe:
 

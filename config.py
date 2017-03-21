@@ -12,6 +12,7 @@ pump = {
     # regions to be analysed
     #
     # 'regions': ['dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'],
+    # 'regions': ['dd-eu'],
 
     # should better be set in computer environment
     #
