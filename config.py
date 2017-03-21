@@ -57,6 +57,6 @@ qualys = {
     'url': 'https://qualysguard.qualys.eu/',
     'login': '$QUALYS_LOGIN',
     'password': '$QUALYS_PASSWORD',
-    'option': 'EBC Feb 2017',
+    'option': 'Initial Options (default)',
     }
 
