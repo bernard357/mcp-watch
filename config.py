@@ -7,7 +7,7 @@ pump = {
 
     # set to True if you need more details on execution
     #
-    'debug': False,
+    'debug': True,
 
     # regions to be analysed
     #
@@ -58,5 +58,15 @@ qualys = {
     'login': '$QUALYS_LOGIN',
     'password': '$QUALYS_PASSWORD',
     'option': 'Initial Options (default)',
+    }
+
+#
+# Cisco Spark settings -- activate to list new servers in chat room
+#
+
+spark = {
+    'active': False,
+    'room': 'MCP Watch',
+    'moderators': 'bernard.paques@dimensiondata.com',
     }
 

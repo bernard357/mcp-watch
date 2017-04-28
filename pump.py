@@ -268,26 +268,33 @@ class Pump(object):
 
         tail = date.today()
 
-        while head < tail:
-            logging.info("Pumping data for {}".format(head))
-            for queue in self.dqueues:
-                queue.put(head)
-            head += timedelta(days=1)
+        try:
 
-        while forever:
-
-            if head < tail:
+            while head < tail:
                 logging.info("Pumping data for {}".format(head))
                 for queue in self.dqueues:
                     queue.put(head)
                 head += timedelta(days=1)
 
-            else:
-                logging.info("Pumping data for one minute")
-                for queue in self.mqueues:
-                    queue.put(head)
-                time.sleep(60)
-                tail = date.today()
+            while forever:
+
+                if head < tail:
+                    logging.info("Pumping data for {}".format(head))
+                    for queue in self.dqueues:
+                        queue.put(head)
+                    head += timedelta(days=1)
+
+                else:
+                    logging.info("Pumping data for one minute")
+                    for queue in self.mqueues:
+                        queue.put(head)
+                    time.sleep(60)
+                    tail = date.today()
+
+        except KeyboardInterrupt:
+            pass
+        except:
+            raise
 
     def work_every_day(self, queue, region):
         """
@@ -303,9 +310,16 @@ class Pump(object):
         from the rest.
         """
 
-        for cursor in iter(queue.get, 'STOP'):
-            self.pull(cursor, region)
-            time.sleep(0.5)
+        try:
+
+            for cursor in iter(queue.get, 'STOP'):
+                self.pull(cursor, region)
+                time.sleep(0.5)
+
+        except KeyboardInterrupt:
+            pass
+        except:
+            raise
 
     def work_every_minute(self, queue, region):
         """
@@ -321,9 +335,16 @@ class Pump(object):
         from the rest.
         """
 
-        for cursor in iter(queue.get, 'STOP'):
-            self.tick(cursor, region)
-            time.sleep(0.5)
+        try:
+
+            for cursor in iter(queue.get, 'STOP'):
+                self.tick(cursor, region)
+                time.sleep(0.5)
+
+        except KeyboardInterrupt:
+            pass
+        except:
+            raise
 
     def pull(self, on, region='dd-eu'):
         """
@@ -353,7 +374,7 @@ class Pump(object):
 
         except Exception as feedback:
             logging.warning('Unable to pull for {}'.format(region))
-            logging.warning('- {}'.format(str(feedback)))
+            logging.exception('- {}'.format(feedback))
 
     def tick(self, on, region='dd-eu'):
         """
@@ -380,7 +401,7 @@ class Pump(object):
 
         except Exception as feedback:
             logging.warning('Unable to tick for {}'.format(region))
-            logging.warning(str(feedback))
+            logging.exception(feedback)
 
 
     def fetch_summary_usage(self, on, region='dd-eu'):
@@ -516,6 +537,9 @@ class Pump(object):
         :type region: ``str``
 
         """
+
+        if raw in ([], None):
+            return []
 
         cursor = self.context[region].get('cursor')
         uid = self.context[region].get('uid')
@@ -789,7 +813,7 @@ class Pump(object):
 
             except Exception as feedback:
                 logging.warning('Unable to update on active servers')
-                logging.warning(str(feedback))
+                logging.exception(feedback)
 
         if avoided == len(self.updaters) and len(items) > 0:
             logging.warning('No updater has been activated')
@@ -857,11 +881,14 @@ if __name__ == "__main__":
         logging.debug("Storing data in files")
         from models.files import FilesUpdater
         updater = FilesUpdater(settings)
-        if horizon:
-            updater.reset_store()
+        if updater.get('active', False):
+            if horizon:
+                updater.reset_store()
+            else:
+                updater.use_store()
+            pump.add_updater(updater)
         else:
-            updater.use_store()
-        pump.add_updater(updater)
+            logging.debug("- module is not active")
 
     except AttributeError:
         logging.debug("No configuration for file storage")
@@ -874,11 +901,14 @@ if __name__ == "__main__":
         logging.debug("Storing data in InfluxDB")
         from models.influx import InfluxdbUpdater
         updater = InfluxdbUpdater(settings)
-        if horizon:
-            updater.reset_store()
+        if updater.get('active', False):
+            if horizon:
+                updater.reset_store()
+            else:
+                updater.use_store()
+            pump.add_updater(updater)
         else:
-            updater.use_store()
-        pump.add_updater(updater)
+            logging.debug("- module is not active")
 
     except AttributeError:
         logging.debug("No configuration for InfluxDB")
@@ -891,19 +921,42 @@ if __name__ == "__main__":
         logging.debug("Using Qualys service")
         from models.qualys import QualysUpdater
         updater = QualysUpdater(settings)
-        if horizon:
-            updater.reset_store()
+        if updater.get('active', False):
+            if horizon:
+                updater.reset_store()
+            else:
+                updater.use_store()
+            pump.add_updater(updater)
         else:
-            updater.use_store()
-        pump.add_updater(updater)
+            logging.debug("- module is not active")
 
     except AttributeError:
         logging.debug("No configuration for Qualys")
 
+    # add a Cisco Spark updater as per configuration
+    #
+    try:
+        settings = config.spark
+
+        logging.debug("Using Cisco Spark service")
+        from models.spark import SparkUpdater
+        updater = SparkUpdater(settings)
+        if updater.get('active', False):
+            if horizon:
+                updater.reset_store()
+            else:
+                updater.use_store()
+            pump.add_updater(updater)
+        else:
+            logging.debug("- module is not active")
+
+    except AttributeError:
+        logging.debug("No configuration for Cisco Spark")
+
     # sanity check
     #
     if len(pump.updaters) < 1:
-        logger.warning('No updater has been configured, check config.py')
+        logging.warning('No updater has been configured, check config.py')
         time.sleep(5)
 
     # fetch and dispatch data
