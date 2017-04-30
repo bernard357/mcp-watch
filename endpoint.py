@@ -179,7 +179,10 @@ class Endpoint(object):
         node['vlanId'] = item['networkInfo']['primaryNic']['@vlanId']
         node['vlanName'] = item['networkInfo']['primaryNic']['@vlanName']
         node['networkAdapter'] = item['networkInfo']['primaryNic']['@networkAdapter']
-        node['macAddress'] = item['networkInfo']['primaryNic']['@macAddress']
+        try:
+            node['macAddress'] = item['networkInfo']['primaryNic']['@macAddress']
+        except:
+            pass
         node['sourceImageId'] = item['sourceImageId']
         node['deployed'] = item['deployed']
         node['deployedTime'] = item.get('createTime')
