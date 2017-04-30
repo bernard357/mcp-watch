@@ -67,8 +67,8 @@ blueprints:
                       env QUALYS_PASSWORD="{{ environment.QUALYS_PASSWORD }}"
                       export QUALYS_PASSWORD
 
-                      env CHAT_MODERATORS="{{ environment.CHAT_MODERATORS }}"
-                      export CHAT_MODERATORS
+                      env CHAT_ROOM_MODERATORS="{{ environment.CHAT_ROOM_MODERATORS }}"
+                      export CHAT_ROOM_MODERATORS
 
                       env CHAT_TOKEN="{{ environment.CHAT_TOKEN }}"
                       export CHAT_TOKEN
@@ -86,7 +86,7 @@ blueprints:
                     export MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
                     export QUALYS_LOGIN="{{ environment.QUALYS_LOGIN }}"
                     export QUALYS_PASSWORD="{{ environment.QUALYS_PASSWORD }}"
-                    export CHAT_MODERATORS="{{ environment.CHAT_MODERATORS }}"
+                    export CHAT_ROOM_MODERATORS="{{ environment.CHAT_ROOM_MODERATORS }}"
                     export CHAT_TOKEN="{{ environment.CHAT_TOKEN }}"
 
                 - path: /root/hosts.awk
