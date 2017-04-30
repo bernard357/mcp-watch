@@ -66,9 +66,9 @@ class PumpTests(unittest.TestCase):
     def test_mcp(self):
 
         pump = Pump()
-        pump.set_drivers()
+        pump.set_endpoints()
 
-        someday = date(2016, 11, 30)
+        someday = date(2017, 03, 07)
 
         print('***** Test fetch summary usage ***')
 
@@ -80,7 +80,6 @@ class PumpTests(unittest.TestCase):
         if os.path.isfile(lname):
             with open(lname, 'r') as handle:
                 expected = yaml.load(handle)
-                expected.pop()
                 self.assertEqual(items, expected)
 
         else:
@@ -110,7 +109,7 @@ class PumpTests(unittest.TestCase):
     def test_update(self):
 
         pump = Pump()
-        pump.set_drivers()
+        pump.set_endpoints()
 
         influx = InfluxdbUpdater({'active': True})
         pump.add_updater(influx)

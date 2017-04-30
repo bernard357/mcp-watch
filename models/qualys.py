@@ -55,12 +55,12 @@ class QualysUpdater(Updater):
 
         pass
 
-    def on_active_servers(self, items=[], region='dd-eu'):
+    def on_servers(self, updates=[], region='dd-eu'):
         """
         Signals the deployment, start or reboot of cloud servers
 
-        :param items: description of new servers
-        :type items: ``list`` of ``dict``
+        :param updates: description of new servers
+        :type updates: ``list`` of ``dict``
 
         :param region: source of the information, e.g., 'dd-eu' or other region
         :type region: ``str``
@@ -79,14 +79,34 @@ class QualysUpdater(Updater):
         #
         count = 0
 
+        # ids of servers that have been processed in this batch
+        #
+        processed = []
+
         # look at every server that have been activated
         #
-        for item in items:
+        for item in updates:
+
+            # we need a server up and running
+            #
+            if item['action'].lower() not in ('start server',
+                                              'reboot server'):
+                continue
 
             # we need a public IP address to do the scan
             #
             if item['public_ip'] is None:
+                logging.debug("- {} has no public IP address".format(
+                    item['name']))
                 continue
+
+            # only one scan per server per batch
+            #
+            if item['public_ip'] in processed:
+                logging.debug("- a scan is already triggered for {} {}".format(
+                    item['name'], item['public_ip']))
+                continue
+            processed.append(item['public_ip'])
 
             # trigger a scan
             #

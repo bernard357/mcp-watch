@@ -61,6 +61,18 @@ blueprints:
                       env MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
                       export MCP_PASSWORD
 
+                      env QUALYS_LOGIN="{{ environment.QUALYS_LOGIN }}"
+                      export QUALYS_LOGIN
+
+                      env QUALYS_PASSWORD="{{ environment.QUALYS_PASSWORD }}"
+                      export QUALYS_PASSWORD
+
+                      env CHAT_MODERATORS="{{ environment.CHAT_MODERATORS }}"
+                      export CHAT_MODERATORS
+
+                      env CHAT_TOKEN="{{ environment.CHAT_TOKEN }}"
+                      export CHAT_TOKEN
+
                       script
                           cd /home/ubuntu/mcp-watch
                           python pump.py
@@ -72,6 +84,10 @@ blueprints:
                     #!/bin/sh
                     export MCP_USER="{{ environment.MCP_USER }}"
                     export MCP_PASSWORD="{{ environment.MCP_PASSWORD }}"
+                    export QUALYS_LOGIN="{{ environment.QUALYS_LOGIN }}"
+                    export QUALYS_PASSWORD="{{ environment.QUALYS_PASSWORD }}"
+                    export CHAT_MODERATORS="{{ environment.CHAT_MODERATORS }}"
+                    export CHAT_TOKEN="{{ environment.CHAT_TOKEN }}"
 
                 - path: /root/hosts.awk
                   content: |

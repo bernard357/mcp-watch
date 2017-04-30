@@ -7,7 +7,7 @@ pump = {
 
     # set to True if you need more details on execution
     #
-    'debug': True,
+    'debug': False,
 
     # regions to be analysed
     #
@@ -65,8 +65,9 @@ qualys = {
 #
 
 spark = {
-    'active': False,
+    'active': True,
     'room': 'MCP Watch',
-    'moderators': 'bernard.paques@dimensiondata.com',
+    'moderators': '$CHAT_ROOM_MODERATORS',
+    'token': '$CHAT_TOKEN',
     }
 

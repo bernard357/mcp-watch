@@ -25,11 +25,13 @@ import socket
 import string
 import sys
 import time
-
-from libcloud.compute.providers import get_driver as get_compute_driver
-from libcloud.compute.types import Provider as ComputeProvider
+import xmltodict
 
 import config
+from endpoint import Endpoint
+
+
+__version__ = '17.4.30'
 
 
 class Pump(object):
@@ -166,30 +168,28 @@ class Pump(object):
         return self.settings.get('regions',
                                  ('dd-af', 'dd-ap', 'dd-au', 'dd-eu', 'dd-na'))
 
-    def set_drivers(self):
+    def set_endpoints(self):
         """
-        Sets compute drivers from Apache Libcloud
+        Sets API endpoints
 
+        This function initializes one endpoint per region.
         """
-
-        driver = get_compute_driver(ComputeProvider.DIMENSIONDATA)
 
         self.engines = {}
 
         for region in self.get_regions():
 
-            self.engines[ region ] = driver(
+            self.engines[region] = Endpoint(
                 key=self.get_user_name(),
                 secret=self.get_user_password(),
-                region=region,
-                host=None)
-
-        return self.engines
+                region=region)
 
     def set_workers(self):
         """
         Sets processing workers
 
+        This function creates 2 queues per region, one for the processing
+        of daily data, and another one for the processing of real-time data.
         """
 
         self.dqueues = []
@@ -268,33 +268,26 @@ class Pump(object):
 
         tail = date.today()
 
-        try:
+        while head < tail:
+            logging.info("Pumping data for {}".format(head))
+            for queue in self.dqueues:
+                queue.put(head)
+            head += timedelta(days=1)
 
-            while head < tail:
+        while forever:
+
+            if head < tail:
                 logging.info("Pumping data for {}".format(head))
                 for queue in self.dqueues:
                     queue.put(head)
                 head += timedelta(days=1)
 
-            while forever:
-
-                if head < tail:
-                    logging.info("Pumping data for {}".format(head))
-                    for queue in self.dqueues:
-                        queue.put(head)
-                    head += timedelta(days=1)
-
-                else:
-                    logging.info("Pumping data for one minute")
-                    for queue in self.mqueues:
-                        queue.put(head)
-                    time.sleep(60)
-                    tail = date.today()
-
-        except KeyboardInterrupt:
-            pass
-        except:
-            raise
+            else:
+                logging.info("Pumping data for one minute")
+                for queue in self.mqueues:
+                    queue.put(head)
+                time.sleep(60)
+                tail = date.today()
 
     def work_every_day(self, queue, region):
         """
@@ -359,6 +352,7 @@ class Pump(object):
         """
 
         try:
+
             items = self.fetch_summary_usage(on, region)
             self.update_summary_usage(items, region)
 
@@ -373,8 +367,8 @@ class Pump(object):
             logging.warning('- {}'.format(str(feedback)))
 
         except Exception as feedback:
-            logging.warning('Unable to pull for {}'.format(region))
-            logging.exception('- {}'.format(feedback))
+            logging.error('Unable to pull for {}'.format(region))
+            logging.exception(feedback)
 
     def tick(self, on, region='dd-eu'):
         """
@@ -389,18 +383,19 @@ class Pump(object):
         """
 
         try:
+
             today = (on + timedelta(days=1))
             raw = self.fetch_audit_log(today, region)
             items = self.tail_audit_log(today, raw, region)
             servers = self.list_active_servers(items, region)
-            self.on_active_servers(servers, region)
+            self.on_servers(servers, region)
 
         except socket.error as feedback:
             logging.warning('Cannot access API endpoint for {}'.format(region))
             logging.warning('- {}'.format(str(feedback)))
 
         except Exception as feedback:
-            logging.warning('Unable to tick for {}'.format(region))
+            logging.error('Unable to tick for {}'.format(region))
             logging.exception(feedback)
 
 
@@ -422,7 +417,7 @@ class Pump(object):
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
 
-        items = self.engines[region].ex_summary_usage_report(
+        items = self.engines[region].summary_usage_report(
             start_date,
             end_date)
 
@@ -462,7 +457,7 @@ class Pump(object):
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
 
-        items = self.engines[region].ex_detailed_usage_report(
+        items = self.engines[region].detailed_usage_report(
             start_date,
             end_date)
 
@@ -502,7 +497,7 @@ class Pump(object):
         start_date = (on - timedelta(days=1)).strftime("%Y-%m-%d")
         end_date = on.strftime("%Y-%m-%d")
 
-        items = self.engines[region].ex_audit_log_report(
+        items = self.engines[region].audit_log_report(
             start_date,
             end_date)
 
@@ -538,7 +533,7 @@ class Pump(object):
 
         """
 
-        if raw in ([], None):
+        if raw in ([], None):  # sanity check
             return []
 
         cursor = self.context[region].get('cursor')
@@ -594,17 +589,24 @@ class Pump(object):
 
             # we are interested only into completed actions on servers
             #
-            if item[6] != 'SERVER' or item[10] != 'OK':
+            if item[6] != 'SERVER':
                 continue
 
-            # we are looking for server activations
+            # we are not interested into OEC_SYSTEM
+            #
+            if item[2] == 'OEC_SYSTEM':
+                continue
+
+            # we are looking for new servers and for restarted servers
             #
             if item[8].lower() not in ('deploy server',
                                        'start server',
+                                       'graceful shutdown server',
+                                       'power off server',
                                        'reboot server'):
                 continue
 
-            # extract name and unique id of the activated server
+            # extract name and unique id of the server
             #
             matches = re.match(name_and_id, item[7])
             name = matches.group(1)
@@ -614,21 +616,10 @@ class Pump(object):
             #
             try:
 
-                # cache in memory the information retrieved from the API
+                # cache for this batch the information retrieved from the API
                 #
                 if id not in nodes:
-                    node = self.engines[region].ex_get_node_by_id(id=id)
-
-                    # hack - the driver does not report public ipv4 accurately
-                    if len(node.public_ips) < 1:
-                        domain = self.engines[region].ex_get_network_domain(
-                            node.extra['networkDomainId'])
-                        for rule in self.engines[region].ex_list_nat_rules(domain):
-                            if rule.internal_ip == node.private_ips[0]:
-                                node.public_ips.append(rule.external_ip)
-                                break
-
-                    nodes[id] = node
+                    nodes[id] = self.engines[region].get_node_by_id(id=id)
 
                 # retrieve node information
                 #
@@ -638,58 +629,32 @@ class Pump(object):
 
                 # build a record for the updaters
                 #
-                server = {
-                    'name': name,
-                    'id': id,
-                    'action': item[8],
-                    'stamp': item[1],
-                    'private_ip': node.private_ips[0],
-                    'public_ip': node.public_ips[0] \
-                        if len(node.public_ips) > 0 else None,
-                    'description': node.extra['description'],
-                    'region': region,
-                    'sourceImageId': node.extra['sourceImageId'],
-                    'networkDomainId': node.extra['networkDomainId'],
-                    'datacenterId': node.extra['datacenterId'],
-                    'deployedTime': node.extra['deployedTime'],
-                    'cpu': node.extra['cpu'].cpu_count,
-                    'memoryMb': node.extra['memoryMb'],
-                    'OS_id': node.extra['OS_id'],
-                    'OS_type': node.extra['OS_type'],
-                    'OS_displayName': node.extra['OS_displayName'],
-                    'disks': [x.size_gb for x in node.extra['disks']],
-                    }
+                server = node.copy()
+                server['stamp'] = item[1]
+
+                actor = string.replace(item[2], '.', ' ')
+                actor = string.replace(actor, '_', '-')
+
+                server['actor'] = actor.title()
+                server['action'] = item[8]
+                server['region'] = region
 
                 # extend the raw list of activated servers
                 #
-                servers.insert(0,server)
+                servers.append(server)
 
             # recover safely from any error
             #
             except Exception as feedback:
                 logging.debug('Cannot locate {}'.format(name))
-                logging.debug('- {}'.format(str(feedback)))
+                logging.exception(feedback)
                 nodes[id] = None
 
-        # keep only the most recent record for each server
+        # list of server updates
         #
         if len(servers) > 0:
-            logging.debug('Found active servers for {}'.format(region))
-        uniques = []
-        processed = []
-        for server in servers:
-            if server['id'] in processed:
-                continue
-            processed.append(server['id'])
-            uniques.append(server)
-            logging.debug("- {}".format(server))
-
-        if len(uniques) < 1:
-            logging.debug("- no new active server at {}".format(region))
-
-        # list of activated servers
-        #
-        return uniques
+            logging.debug('Found server updates for {}'.format(region))
+        return servers
 
     def add_updater(self, updater):
         """
@@ -701,6 +666,23 @@ class Pump(object):
         """
 
         self.updaters.append(updater)
+
+    def open_updaters(self, horizon):
+        """
+        Signals the beginning of the job to updaters
+        """
+        for updater in self.updaters:
+            if horizon:
+                updater.reset_store()
+            else:
+                updater.use_store()
+
+    def close_updaters(self):
+        """
+        Signals the end of the job to updaters
+        """
+        for updater in self.updaters:
+            updater.close_store()
 
     def update_summary_usage(self, items, region='dd-eu'):
         """
@@ -789,12 +771,12 @@ class Pump(object):
         if avoided == len(self.updaters) and len(items) > 0:
             logging.warning('No updater has been activated')
 
-    def on_active_servers(self, items, region='dd-eu'):
+    def on_servers(self, updates, region='dd-eu'):
         """
-        Signals that active servers have been detected
+        Sends updates related to servers
 
-        :param items: to be recorded in database
-        :type items: ``list`` of ``dict``
+        :param updates: to be recorded in database
+        :type updates: ``list`` of ``dict``
 
         :param region: the target region, e.g., 'dd-eu'
         :type region: ``str``
@@ -809,7 +791,7 @@ class Pump(object):
                 continue
 
             try:
-                updater.on_active_servers(list(items), region)
+                updater.on_servers(list(updates), region)
 
             except Exception as feedback:
                 logging.warning('Unable to update on active servers')
@@ -878,17 +860,15 @@ if __name__ == "__main__":
     try:
         settings = config.files
 
-        logging.debug("Storing data in files")
         from models.files import FilesUpdater
         updater = FilesUpdater(settings)
+
         if updater.get('active', False):
-            if horizon:
-                updater.reset_store()
-            else:
-                updater.use_store()
+            logging.info("Storing data in files")
             pump.add_updater(updater)
+
         else:
-            logging.debug("- module is not active")
+            logging.debug("The files module has not been activated")
 
     except AttributeError:
         logging.debug("No configuration for file storage")
@@ -898,17 +878,15 @@ if __name__ == "__main__":
     try:
         settings = config.influxdb
 
-        logging.debug("Storing data in InfluxDB")
         from models.influx import InfluxdbUpdater
         updater = InfluxdbUpdater(settings)
+
         if updater.get('active', False):
-            if horizon:
-                updater.reset_store()
-            else:
-                updater.use_store()
+            logging.info("Storing data in InfluxDB")
             pump.add_updater(updater)
+
         else:
-            logging.debug("- module is not active")
+            logging.debug("The InfluxDB module has not been activated")
 
     except AttributeError:
         logging.debug("No configuration for InfluxDB")
@@ -918,37 +896,33 @@ if __name__ == "__main__":
     try:
         settings = config.qualys
 
-        logging.debug("Using Qualys service")
         from models.qualys import QualysUpdater
         updater = QualysUpdater(settings)
+
         if updater.get('active', False):
-            if horizon:
-                updater.reset_store()
-            else:
-                updater.use_store()
+            logging.info("Using Qualys service")
             pump.add_updater(updater)
+
         else:
-            logging.debug("- module is not active")
+            logging.debug("The Qualys module has not been activated")
 
     except AttributeError:
         logging.debug("No configuration for Qualys")
 
-    # add a Cisco Spark updater as per configuration
+    # add a Cisco Spark room as per configuration
     #
     try:
         settings = config.spark
 
-        logging.debug("Using Cisco Spark service")
         from models.spark import SparkUpdater
         updater = SparkUpdater(settings)
+
         if updater.get('active', False):
-            if horizon:
-                updater.reset_store()
-            else:
-                updater.use_store()
+            logging.info("Using Cisco Spark service")
             pump.add_updater(updater)
+
         else:
-            logging.debug("- module is not active")
+            logging.debug("The Cisco Spark module has not been activated")
 
     except AttributeError:
         logging.debug("No configuration for Cisco Spark")
@@ -956,11 +930,16 @@ if __name__ == "__main__":
     # sanity check
     #
     if len(pump.updaters) < 1:
-        logging.warning('No updater has been configured, check config.py')
-        time.sleep(5)
+        logging.warning('No updater has been activated, check config.py')
 
     # fetch and dispatch data
     #
-    pump.set_drivers()
-    pump.set_workers()
-    pump.pump(since=horizon)
+    pump.open_updaters(horizon)
+    try:
+        pump.set_endpoints()
+        pump.set_workers()
+        pump.pump(since=horizon)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        pump.close_updaters()

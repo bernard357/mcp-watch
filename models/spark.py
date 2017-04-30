@@ -18,28 +18,19 @@ import os
 import requests
 from base import Updater
 
-#from shellbot import ShellBot
+from shellbot import ShellBot
 
 
-UPDATE_TEMPLATE = """{region } {action} {name}:
-* {OS}
+UPDATE_TEMPLATE = """{action} at {dc} ({region}):
+* name: {name}
+* type: {OS}
 * CPU: {cpu}
 * RAM: {memoryMb} (MB)
 * disks: {disks} (GB)
-* private IPv4: {private_ip} (GB)
+* private IPv4: {private_ip}
 {extensions}"""
 
-
-class dummy(object):
-    def configure(self, *args, **kwargs):
-        logging.debug('configured')
-
-    def say(self, *args, **kwargs):
-        logging.debug('say something')
-
-my_bot = dummy()
-
-#ShellBot()
+my_bot = ShellBot()
 
 
 class SparkUpdater(Updater):
@@ -49,6 +40,42 @@ class SparkUpdater(Updater):
     Token is expected in ``CHAT_TOKEN``.
 
     """
+
+    def use_store(self):
+        """
+        Opens an existing store before updating it
+        """
+        self.reset_store()
+
+    def reset_store(self):
+        """
+        Creates or resets a store before updating it
+        """
+        logging.debug("Connecting to Cisco Spark")
+
+        try:
+            os.environ['CHAT_ROOM_TITLE'] = self.get('room', '$CHAT_ROOM_TITLE')
+            os.environ['CHAT_ROOM_MODERATORS'] = self.get('moderators', '$CHAT_ROOM_MODERATORS')
+            os.environ['CHAT_TOKEN'] = self.get('token', '$CHAT_TOKEN')
+            my_bot.configure()
+            my_bot.bond()
+
+        except Exception as feedback:
+            logging.error(u"Unable to connect to Cisco Spark")
+            logging.exception(feedback)
+
+    def close_store(self):
+        """
+        Closes a store when the pump is stopped
+        """
+        logging.debug("Closing Cisco Spark")
+
+        try:
+            my_bot.dispose()
+
+        except Exception as feedback:
+            logging.error(u"Unable to close Cisco Spark")
+            logging.exception(feedback)
 
     def update_summary_usage(self, items=[], region='dd-eu'):
         """
@@ -68,49 +95,41 @@ class SparkUpdater(Updater):
         """
         pass
 
-    def on_active_servers(self, items=[], region='dd-eu'):
+    def on_servers(self, updates=[], region='dd-eu'):
         """
         Signals the deployment, start or reboot of cloud servers
 
-        :param items: description of new servers
-        :type items: ``list`` of ``dict``
+        :param updates: description of new servers
+        :type updates: ``list`` of ``dict``
 
         :param region: source of the information, e.g., 'dd-eu' or other region
         :type region: ``str``
 
         """
 
-        # activate a bot on first update
-        #
-        try:
-            assert my_bot.has_been_configured == True
-        except:
-            my_bot.has_been_configured = True
-            os.environ['CHAT_ROOM_TITLE'] = self.get('room')
-            os.environ['CHAT_ROOM_MODERATORS'] = self.get('moderators')
-            my_bot.configure()
-
-        # look at every server that have been activated
-        #
         count = 0
-        for item in items:
+        for item in updates:
             count += 1
 
             if item['public_ip'] is None:
-                extension = ''
+                extensions = ''
             else:
-                extension = u"* public IPv4: {}\n".format(item['public_ip'])
+                extensions = u"* public IPv4: {}\n".format(item['public_ip'])
+
+            extensions += u"* date: {} UTC\n".format(item['stamp'])
+            extensions += u"* actor: {}\n".format(item['actor'])
 
             update = UPDATE_TEMPLATE.format(
                 action=item['action'],
                 cpu=item['cpu'],
-                disks=item['disks'],
-                extension=extension,
+                disks=', '.join([str(int(x)) for x in item['disks']]),
+                extensions=extensions,
                 memoryMb=item['memoryMb'],
                 name=item['name'],
                 OS=item['OS_displayName'],
-                private_ip=item['private_ip'],
+                private_ip=', '.join(item['private_ips']),
                 region=item['region'],
+                dc=item['datacenterId'],
             )
 
             my_bot.say(message=update, markdown=update)

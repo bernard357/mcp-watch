@@ -18,6 +18,7 @@ from models.base import Updater
 from models.files import FilesUpdater
 from models.influx import InfluxdbUpdater
 from models.qualys import QualysUpdater
+from models.spark import SparkUpdater
 
 import config
 
@@ -42,7 +43,9 @@ class ModelsTests(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             updater.update_audit_log()
 
-        updater.on_active_servers()
+        updater.on_servers()
+
+        updater.close_store()
 
     def test_files(self):
 
@@ -104,6 +107,20 @@ class ModelsTests(unittest.TestCase):
             settings = {}
 
         updater = QualysUpdater(settings)
+
+    def test_spark(self):
+
+        print('***** Test spark ***')
+
+        updater = SparkUpdater({'a': 'b'})
+        self.assertEqual(updater.settings['a'], 'b')
+
+        try:
+            settings = config.spark
+        except:
+            settings = {}
+
+        updater = SparkUpdater(settings)
 
 if __name__ == '__main__':
     logging.getLogger('').setLevel(logging.DEBUG)

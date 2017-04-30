@@ -72,6 +72,13 @@ class Updater(object):
 
         pass
 
+    def close_store(self):
+        """
+        Closes a store when the pump is stopped
+        """
+
+        pass
+
     def update_summary_usage(self, items=[], region='dd-eu'):
         """
         Updates detailed usage records
@@ -189,12 +196,12 @@ class Updater(object):
 
         raise NotImplementedError
 
-    def on_active_servers(self, items=[], region='dd-eu'):
+    def on_servers(self, updates=[], region='dd-eu'):
         """
         Signals the deployment, start or reboot of cloud servers
 
-        :param items: description of new servers
-        :type items: ``list`` of ``dict``
+        :param updates: description of new servers
+        :type updates: ``list`` of ``dict``
 
         :param region: source of the information, e.g., 'dd-eu' or other region
         :type region: ``str``
