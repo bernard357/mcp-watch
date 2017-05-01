@@ -182,7 +182,7 @@ class Endpoint(object):
         try:
             node['macAddress'] = item['networkInfo']['primaryNic']['@macAddress']
         except:
-            pass
+            node['macAddress'] = None
         node['sourceImageId'] = item['sourceImageId']
         node['deployed'] = item['deployed']
         node['deployedTime'] = item.get('createTime')
@@ -191,7 +191,10 @@ class Endpoint(object):
         node['OS_id'] = item['guest']['operatingSystem']['@id']
         node['OS_displayName'] = item['guest']['operatingSystem']['@displayName']
         node['OS_type'] = item['guest']['operatingSystem']['@family']
-        node['virtualHardware'] = item['virtualHardware']['@version']
+        try:
+            node['virtualHardware'] = item['virtualHardware']['@version']
+        except:
+            node['virtualHardware'] = None
         node['disks'] = []
 
         if not isinstance(item['scsiController']['disk'], list):
