@@ -616,14 +616,9 @@ class Pump(object):
             #
             try:
 
-                # cache for this batch the information retrieved from the API
-                #
-                if id not in nodes:
-                    nodes[id] = self.engines[region].get_node_by_id(id=id)
-
                 # retrieve node information
                 #
-                node = nodes[id]
+                node = self.engines[region].get_node_by_id(id=id)
                 if node is None:
                     continue
 
