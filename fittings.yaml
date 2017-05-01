@@ -42,6 +42,10 @@ blueprints:
                 - ntp
                 - git
                 - python-pip
+                - build-essential
+                - libssl-dev
+                - libffi-dev
+                - python-dev
 
               write_files:
 

@@ -4,4 +4,5 @@ influxdb
 requests
 shellbot
 urllib3[secure]
+vcrpy
 xmltodict
