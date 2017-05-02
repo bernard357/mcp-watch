@@ -116,6 +116,9 @@ blueprints:
                 - cp -n /etc/hosts /etc/hosts.original
                 - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
 
+                - echo "===== Upgrading python packages"
+                - pip install requests --upgrade
+
                 - echo "===== Installing the code"
                 - cd /home/ubuntu/
                 - git clone https://github.com/bernard357/mcp-watch.git
