@@ -143,16 +143,22 @@ class QualysUpdater(Updater):
                     'ip': item['public_ip'],
                     'scan_title': "Scan of {} at {} for {}".format(
                         item['name'], item['public_ip'], region),
-                    'option_title': self.get('option', 'MCP Watch'),
+                    'option_title': self.get('option', 'Initial Options'),
                     }
+
+                logging.debug(u'Qualys request: {}'.format(payload))
 
                 response = requests.post(url=launch_url,
                                          auth=auth,
                                          headers=headers,
                                          params=payload)
 
+                try:
+                    logging.debug(u'Qualys response: {}'.format(response.json()))
+                except:
+                    pass
+
                 if response.status_code != 200:
-                    logging.info(response.json())
                     raise Exception("Received error code {}".format(
                         response.status_code))
 
@@ -160,7 +166,7 @@ class QualysUpdater(Updater):
             #
             except Exception as feedback:
                 logging.warning('- unable to use Qualys service')
-                logging.warning(str(feedback))
+                logging.exception(feedback)
 
         # report on this batch
         #
