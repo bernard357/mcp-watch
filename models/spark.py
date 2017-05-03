@@ -132,7 +132,7 @@ class SparkUpdater(Updater):
                 dc=item['datacenterId'],
             )
 
-            my_bot.say(message=update, markdown=update)
+            my_bot.say(message=update+'\n')
 
         # report on this batch
         #
