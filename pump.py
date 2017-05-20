@@ -667,17 +667,27 @@ class Pump(object):
         Signals the beginning of the job to updaters
         """
         for updater in self.updaters:
-            if horizon:
-                updater.reset_store()
-            else:
-                updater.use_store()
+            try:
+                if horizon:
+                    updater.reset_store()
+                else:
+                    updater.use_store()
+
+            except Exception as feedback:
+                logging.error('- unable to open updater')
+                logging.debug(feedback)
 
     def close_updaters(self):
         """
         Signals the end of the job to updaters
         """
         for updater in self.updaters:
-            updater.close_store()
+            try:
+                updater.close_store()
+
+            except Exception as feedback:
+                logging.error('- unable to close updater')
+                logging.debug(feedback)
 
     def update_summary_usage(self, items, region='dd-eu'):
         """
@@ -867,6 +877,24 @@ if __name__ == "__main__":
 
     except AttributeError:
         logging.debug("No configuration for file storage")
+
+    # add an elasticsearch updater as per configuration
+    #
+    try:
+        settings = config.elastic
+
+        from models.elastic import ElasticUpdater
+        updater = ElasticUpdater(settings)
+
+        if updater.get('active', False):
+            logging.info("Storing data in Elasticsearch")
+            pump.add_updater(updater)
+
+        else:
+            logging.debug("The Elasticsearch module has not been activated")
+
+    except AttributeError:
+        logging.debug("No configuration for Elasticsearch")
 
     # add an influxdb updater as per configuration
     #

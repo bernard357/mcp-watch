@@ -1,5 +1,6 @@
 colorlog
 PyYAML
+elasticsearch
 influxdb
 requests
 shellbot

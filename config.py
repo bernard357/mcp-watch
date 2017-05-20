@@ -1,3 +1,5 @@
+import requests
+requests.packages.urllib3.disable_warnings()
 
 #
 # General pump settings
@@ -36,6 +38,15 @@ files = {
     }
 
 #
+# Elasticsearch settings -- activate to store time series
+#
+
+elastic = {
+    'active': True,
+    'host': 'localhost:9200',
+    }
+
+#
 # InfluxDB settings -- activate to store time series
 #
 
@@ -65,7 +76,7 @@ qualys = {
 #
 
 spark = {
-    'active': True,
+    'active': False,
     'room': 'MCP Watch',
     'moderators': '$CHAT_ROOM_MODERATORS',
     'token': '$CHAT_TOKEN',

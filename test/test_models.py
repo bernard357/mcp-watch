@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 from models.base import Updater
 from models.files import FilesUpdater
+from models.elastic import ElasticUpdater
 from models.influx import InfluxdbUpdater
 from models.qualys import QualysUpdater
 from models.spark import SparkUpdater
@@ -33,18 +34,10 @@ class ModelsTests(unittest.TestCase):
 
         updater.use_store()
         updater.reset_store()
-
-        with self.assertRaises(NotImplementedError):
-            updater.update_summary_usage()
-
-        with self.assertRaises(NotImplementedError):
-            updater.update_detailed_usage()
-
-        with self.assertRaises(NotImplementedError):
-            updater.update_audit_log()
-
+        updater.update_summary_usage()
+        updater.update_detailed_usage()
+        updater.update_audit_log()
         updater.on_servers()
-
         updater.close_store()
 
     def test_files(self):
@@ -79,6 +72,20 @@ class ModelsTests(unittest.TestCase):
         updater.update_detailed_usage()
 
         updater.update_audit_log()
+
+    def test_elastic(self):
+
+        print('***** Test elastic ***')
+
+        updater = ElasticUpdater({'a': 'b'})
+        self.assertEqual(updater.settings['a'], 'b')
+
+        try:
+            settings = config.elastic
+        except:
+            settings = {}
+
+        updater = ElasticUpdater(settings)
 
     def test_influxdb(self):
 
