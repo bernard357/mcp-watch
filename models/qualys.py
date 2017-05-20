@@ -34,27 +34,6 @@ class QualysUpdater(Updater):
 
     """
 
-    def update_summary_usage(self, items=[], region='dd-eu'):
-        """
-        Not applicable to the Qualys updater
-        """
-
-        pass
-
-    def update_detailed_usage(self, items=[], region='dd-eu'):
-        """
-        Not applicable to the Qualys updater
-        """
-
-        pass
-
-    def update_audit_log(self, items=[], region='dd-eu'):
-        """
-        Not applicable to the Qualys updater
-        """
-
-        pass
-
     def on_servers(self, updates=[], region='dd-eu'):
         """
         Signals the deployment, start or reboot of cloud servers

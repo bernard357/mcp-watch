@@ -32,13 +32,6 @@ class FilesUpdater(Updater):
     def get_audit_log_file(self):
         return self.settings.get('audit_log', './logs/audit_log.log')
 
-    def use_store(self):
-        """
-        Opens a database to save data
-        """
-
-        pass
-
     def reset_store(self):
         """
         Opens a database for points

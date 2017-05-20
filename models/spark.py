@@ -77,24 +77,6 @@ class SparkUpdater(Updater):
             logging.error(u"Unable to close Cisco Spark")
             logging.exception(feedback)
 
-    def update_summary_usage(self, items=[], region='dd-eu'):
-        """
-        Not applicable to the Cisco Spark updater
-        """
-        pass
-
-    def update_detailed_usage(self, items=[], region='dd-eu'):
-        """
-        Not applicable to the Cisco Spark updater
-        """
-        pass
-
-    def update_audit_log(self, items=[], region='dd-eu'):
-        """
-        Not applicable to the Cisco Spark updater
-        """
-        pass
-
     def on_servers(self, updates=[], region='dd-eu'):
         """
         Signals the deployment, start or reboot of cloud servers

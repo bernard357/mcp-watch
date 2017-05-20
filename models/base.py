@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 
 
@@ -62,22 +63,19 @@ class Updater(object):
         """
         Opens an existing store before updating it
         """
-
-        pass
+        logging.debug(u"- no code to use store")
 
     def reset_store(self):
         """
         Creates or resets a store before updating it
         """
-
-        pass
+        logging.debug(u"- no code to reset store")
 
     def close_store(self):
         """
         Closes a store when the pump is stopped
         """
-
-        pass
+        logging.debug(u"- no code to close store")
 
     def update_summary_usage(self, items=[], region='dd-eu'):
         """
@@ -119,8 +117,7 @@ class Updater(object):
         - Advanced Monitoring Hours
 
         """
-
-        raise NotImplementedError
+        logging.debug(u"- no code to update summary usage")
 
     def update_detailed_usage(self, items=[], region='dd-eu'):
         """
@@ -166,8 +163,7 @@ class Updater(object):
         - Cloud Storage (GB)
 
         """
-
-        raise NotImplementedError
+        logging.debug(u"- no code to update detailed usage")
 
     def update_audit_log(self, items=[], region='dd-eu'):
         """
@@ -193,8 +189,7 @@ class Updater(object):
         - Response Code
 
         """
-
-        raise NotImplementedError
+        logging.debug(u"- no code to update audit log")
 
     def on_servers(self, updates=[], region='dd-eu'):
         """
@@ -269,5 +264,4 @@ class Updater(object):
              'description': 'Hadoop slave node #plumbery'}
 
         """
-
-        pass
+        logging.debug(u"- no code to update server information")
